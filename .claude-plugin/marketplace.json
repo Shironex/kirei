@@ -15,7 +15,6 @@
         "repo": "Shironex/kirei"
       },
       "description": "Specialized research + execute agent team. Auto-detects task type (security, UI, refactor, performance, architecture) and complexity. Spawns the right specialist agent to investigate, then the right execute agent to implement.",
-      "version": "1.0.0",
       "author": {
         "name": "Shironex",
         "email": "support@shirone.dev"
