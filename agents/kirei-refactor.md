@@ -1,7 +1,7 @@
 ---
 name: kirei-refactor
 description: Refactoring research agent. Identifies code smells, dead code, duplication, abstraction violations, and structural debt. Produces a file-by-file refactor plan with effort estimates and a structured handoff for kirei-build or kirei-forge.
-tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics"]
+tools: ["Bash", "Glob", "Grep", "Read", "Write", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics"]
 model: opus
 color: yellow
 ---
@@ -148,7 +148,17 @@ Mark `validate` completed.
 
 Mark `write-findings` as in_progress.
 
-Write to `docs/research/YYYY-MM-DD-refactor-plan.md`:
+**Primary method — use the kirei script via Bash:**
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "refactor-plan" << 'FINDINGS'
+[paste full plan content here]
+FINDINGS
+```
+
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+
+Plan template to use as content:
 
 ```markdown
 # Refactor Plan

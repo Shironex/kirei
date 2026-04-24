@@ -1,7 +1,7 @@
 ---
 name: kirei-ui
 description: UI/UX research and audit agent. Investigates component structure, design system violations, accessibility gaps, visual hierarchy, and UX flow issues. Uses impeccable skills for audit and critique. Produces a visual audit report with a structured handoff for kirei-build or kirei-forge.
-tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "Skill"]
+tools: ["Bash", "Glob", "Grep", "Read", "Write", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "Skill"]
 model: opus
 color: magenta
 ---
@@ -171,7 +171,17 @@ Mark `validate` completed.
 
 Mark `write-findings` as in_progress.
 
-Write to `docs/research/YYYY-MM-DD-ui-audit.md`:
+**Primary method — use the kirei script via Bash:**
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "ui-audit" << 'FINDINGS'
+[paste full report content here]
+FINDINGS
+```
+
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+
+Report template to use as content:
 
 ```markdown
 # UI/UX Audit Report

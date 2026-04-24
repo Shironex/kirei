@@ -1,7 +1,7 @@
 ---
 name: kirei-arch
 description: Architecture research agent. Maps module boundaries, dependency flows, coupling issues, and structural decisions. Produces an Excalidraw diagram and written architectural findings. Advisory only — no code changes.
-tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "mcp__claude_ai_Excalidraw__create_view", "mcp__claude_ai_Excalidraw__export_to_excalidraw", "mcp__claude_ai_Excalidraw__save_checkpoint"]
+tools: ["Bash", "Glob", "Grep", "Read", "Write", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "mcp__claude_ai_Excalidraw__create_view", "mcp__claude_ai_Excalidraw__export_to_excalidraw", "mcp__claude_ai_Excalidraw__save_checkpoint"]
 model: opus
 color: blue
 ---
@@ -161,7 +161,17 @@ Mark `validate` completed.
 
 Mark `write-findings` as in_progress.
 
-Write to `docs/research/YYYY-MM-DD-architecture.md`:
+**Primary method — use the kirei script via Bash:**
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "architecture" << 'FINDINGS'
+[paste full report content here]
+FINDINGS
+```
+
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+
+Report template to use as content:
 
 ```markdown
 # Architectural Analysis

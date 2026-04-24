@@ -20,7 +20,7 @@ description: |
   Pure analysis task with no implementation — kirei is the right agent.
   </commentary>
   </example>
-tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics"]
+tools: ["Bash", "Glob", "Grep", "Read", "Write", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics"]
 model: opus
 color: cyan
 ---
@@ -141,11 +141,10 @@ Mark `validate` completed once confirmed.
 
 Mark `write-findings` as in_progress.
 
-Write a findings document to `docs/research/` in the **project repo you investigated**. Create the `docs/research/` directory if it doesn't exist.
+**Primary method — use the kirei script via Bash** (handles directory creation automatically):
 
-Filename format: `docs/research/YYYY-MM-DD-{short-kebab-topic}.md`
-
-```markdown
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "short-topic-slug" << 'FINDINGS'
 # Research: {Topic}
 
 **Date:** YYYY-MM-DD
@@ -194,9 +193,16 @@ Filename format: `docs/research/YYYY-MM-DD-{short-kebab-topic}.md`
 
 ## Open Questions
 - [Anything unresolved or uncertain]
+FINDINGS
 ```
 
-Mark `write-findings` completed.
+The script prints `ok: docs/research/YYYY-MM-DD-short-topic-slug.md` on success.
+
+**Fallback — if `CLAUDE_PLUGIN_ROOT` is not set** (standalone install):
+1. `mkdir -p docs/research` via Bash
+2. Use the Write tool to create `docs/research/YYYY-MM-DD-{topic}.md` with the same content
+
+Mark `write-findings` completed once the file is confirmed written.
 
 ---
 

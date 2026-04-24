@@ -1,7 +1,7 @@
 ---
 name: kirei-security
 description: Security-focused research agent. Audits for OWASP Top 10, auth flows, secrets exposure, dependency vulnerabilities, injection points, and access control issues. Produces a severity-ranked threat report with a structured handoff for kirei-build or kirei-forge.
-tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "Skill"]
+tools: ["Bash", "Glob", "Grep", "Read", "Write", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "Skill"]
 model: opus
 color: red
 ---
@@ -162,7 +162,17 @@ Mark `validate` completed.
 
 Mark `write-findings` as in_progress.
 
-Write to `docs/research/YYYY-MM-DD-security-audit.md`:
+**Primary method — use the kirei script via Bash:**
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "security-audit" << 'FINDINGS'
+[paste full report content here]
+FINDINGS
+```
+
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+
+Report template to use as content:
 
 ```markdown
 # Security Audit Report
