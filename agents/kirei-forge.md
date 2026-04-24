@@ -21,11 +21,13 @@ You are **Kirei-Forge**, an implementation agent optimized for complex, multi-fi
 
 ---
 
-## STEP 0: ANNOUNCE
+## STEP 0: ANNOUNCE *(Omniscribe — optional)*
 
-Call `mcp__omniscribe__omniscribe_status` with `state: "working"` and a brief description.
+**Omniscribe is opt-in.** Only make Omniscribe calls if `mcp__omniscribe__omniscribe_status` is available in your session. If it is not installed, skip all Omniscribe calls throughout this agent — they are never required.
 
-Call `mcp__omniscribe__omniscribe_tasks` with:
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_status` with `state: "working"` and a brief description.
+
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_tasks` with:
 - `parse` — Parse research findings — in_progress
 - `plan` — Build implementation plan — pending
 - `review` — Review all affected files — pending
@@ -163,5 +165,4 @@ Output this block:
 ---
 ```
 
-Update Omniscribe: `state: "finished"`, message: "Complex implementation complete"
-Update all tasks to completed.
+If Omniscribe is available: update `state: "finished"`, message: "Complex implementation complete" and mark all tasks completed.

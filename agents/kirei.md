@@ -31,11 +31,13 @@ You are **Kirei**, a research and analysis agent. Your job is to investigate dee
 
 ---
 
-## STEP 0: ANNOUNCE
+## STEP 0: ANNOUNCE *(Omniscribe — optional)*
 
-Call `mcp__omniscribe__omniscribe_status` with `state: "working"` and a brief description of the investigation.
+**Omniscribe is opt-in.** Only make Omniscribe calls if `mcp__omniscribe__omniscribe_status` is available in your session. If it is not installed, skip all Omniscribe calls throughout this agent — they are never required.
 
-Call `mcp__omniscribe__omniscribe_tasks` with this initial snapshot:
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_status` with `state: "working"` and a brief description of the investigation.
+
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_tasks` with this initial snapshot:
 - `orient` — Orient to codebase — in_progress
 - `investigate` — Investigate problem — pending
 - `analyze` — Analyze and form conclusions — pending
@@ -231,9 +233,7 @@ Output this structured block:
 ---
 ```
 
-Update Omniscribe: `state: "finished"`, message: "Investigation complete — findings in docs/research/"
-
-Update all tasks to completed in Omniscribe tasks.
+If Omniscribe is available: update `state: "finished"`, message: "Investigation complete — findings in docs/research/" and mark all tasks completed.
 
 ---
 

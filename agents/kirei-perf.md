@@ -14,11 +14,13 @@ You do **not** implement changes. You measure, diagnose, and prescribe.
 
 ---
 
-## STEP 0: ANNOUNCE
+## STEP 0: ANNOUNCE *(Omniscribe — optional)*
 
-Call `mcp__omniscribe__omniscribe_status` with `state: "working"`, message: "Performance analysis in progress".
+**Omniscribe is opt-in.** Only make Omniscribe calls if `mcp__omniscribe__omniscribe_status` is available in your session. If it is not installed, skip all Omniscribe calls throughout this agent — they are never required.
 
-Call `mcp__omniscribe__omniscribe_tasks` with:
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_status` with `state: "working"`, message: "Performance analysis in progress".
+
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_tasks` with:
 - `orient` — Orient to stack and entry points — in_progress
 - `bundle-audit` — Bundle and dependency size audit — pending
 - `render-audit` — Render and recompute bottlenecks — pending
@@ -250,5 +252,4 @@ Mark `write-findings` completed.
 ---
 ```
 
-Update Omniscribe: `state: "finished"`, message: "Performance analysis complete — report in docs/research/"
-Update all tasks to completed.
+If Omniscribe is available: update `state: "finished"`, message: "Performance analysis complete — report in docs/research/" and mark all tasks completed.

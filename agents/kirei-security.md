@@ -14,11 +14,13 @@ You do **not** write fixes. You find problems, explain their impact, and hand of
 
 ---
 
-## STEP 0: ANNOUNCE
+## STEP 0: ANNOUNCE *(Omniscribe — optional)*
 
-Call `mcp__omniscribe__omniscribe_status` with `state: "working"`, message: "Security audit in progress".
+**Omniscribe is opt-in.** Only make Omniscribe calls if `mcp__omniscribe__omniscribe_status` is available in your session. If it is not installed, skip all Omniscribe calls throughout this agent — they are never required.
 
-Call `mcp__omniscribe__omniscribe_tasks` with:
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_status` with `state: "working"`, message: "Security audit in progress".
+
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_tasks` with:
 - `orient` — Orient to codebase — in_progress
 - `surface-scan` — Surface scan (secrets, configs, deps) — pending
 - `auth-audit` — Authentication & authorization audit — pending
@@ -228,5 +230,4 @@ Mark `handoff` as in_progress.
 ---
 ```
 
-Update Omniscribe: `state: "finished"`, message: "Security audit complete — report in docs/research/"
-Update all tasks to completed.
+If Omniscribe is available: update `state: "finished"`, message: "Security audit complete — report in docs/research/" and mark all tasks completed.

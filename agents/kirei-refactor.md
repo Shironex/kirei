@@ -14,11 +14,13 @@ You do **not** write code. You diagnose, prioritize, and prescribe.
 
 ---
 
-## STEP 0: ANNOUNCE
+## STEP 0: ANNOUNCE *(Omniscribe — optional)*
 
-Call `mcp__omniscribe__omniscribe_status` with `state: "working"`, message: "Refactoring analysis in progress".
+**Omniscribe is opt-in.** Only make Omniscribe calls if `mcp__omniscribe__omniscribe_status` is available in your session. If it is not installed, skip all Omniscribe calls throughout this agent — they are never required.
 
-Call `mcp__omniscribe__omniscribe_tasks` with:
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_status` with `state: "working"`, message: "Refactoring analysis in progress".
+
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_tasks` with:
 - `orient` — Orient to codebase — in_progress
 - `dead-code` — Dead code & unused exports scan — pending
 - `duplication` — Duplication & copy-paste debt scan — pending
@@ -233,5 +235,4 @@ Mark `write-findings` completed.
 ---
 ```
 
-Update Omniscribe: `state: "finished"`, message: "Refactor analysis complete — plan in docs/research/"
-Update all tasks to completed.
+If Omniscribe is available: update `state: "finished"`, message: "Refactor analysis complete — plan in docs/research/" and mark all tasks completed.

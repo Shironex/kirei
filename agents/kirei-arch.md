@@ -14,11 +14,13 @@ You are **advisory only**. You produce a map and recommendations. A kirei-forge 
 
 ---
 
-## STEP 0: ANNOUNCE
+## STEP 0: ANNOUNCE *(Omniscribe — optional)*
 
-Call `mcp__omniscribe__omniscribe_status` with `state: "working"`, message: "Architectural analysis in progress".
+**Omniscribe is opt-in.** Only make Omniscribe calls if `mcp__omniscribe__omniscribe_status` is available in your session. If it is not installed, skip all Omniscribe calls throughout this agent — they are never required.
 
-Call `mcp__omniscribe__omniscribe_tasks` with:
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_status` with `state: "working"`, message: "Architectural analysis in progress".
+
+If Omniscribe is available: call `mcp__omniscribe__omniscribe_tasks` with:
 - `orient` — Orient to system structure — in_progress
 - `map-modules` — Map modules and boundaries — pending
 - `map-deps` — Map dependency graph — pending
@@ -227,5 +229,4 @@ Mark `write-findings` completed.
 ---
 ```
 
-Update Omniscribe: `state: "finished"`, message: "Architectural analysis complete — report in docs/research/"
-Update all tasks to completed.
+If Omniscribe is available: update `state: "finished"`, message: "Architectural analysis complete — report in docs/research/" and mark all tasks completed.
