@@ -31,36 +31,44 @@ A specialized agent team for Claude Code. Automated research → execute workflo
 
 ### As a Claude Code plugin (recommended)
 
-Install directly from GitHub inside Claude Code:
+Add the kirei marketplace, then install the plugin:
 
 ```
-/plugin install https://github.com/Shironex/kirei
+/plugin marketplace add Shironex/kirei
+/plugin install kirei@kirei
+/reload-plugins
 ```
 
-All agents and the `/kirei` skill become available immediately after install.
+Once installed, the skill is invoked as:
+```
+/kirei:kirei [task description]
+```
 
-### Manual install
+### Manual install (global, standalone)
+
+Agents and skill go directly into your global `~/.claude/` directories — no marketplace needed. Skill invokes as `/kirei`.
 
 ```bash
-# Clone the repo
 git clone https://github.com/Shironex/kirei.git
-
-# Copy agents to global Claude Code agents directory
 cp kirei/agents/*.md ~/.claude/agents/
-
-# Copy skill to global skills directory
 cp kirei/skills/kirei/SKILL.md ~/.claude/skills/kirei.md
+```
+
+### Local development / testing
+
+```bash
+claude --plugin-dir ./kirei
 ```
 
 ### Updating
 
-If installed as a plugin, update via:
-
+Plugin install:
 ```
-/plugin update kirei
+/plugin marketplace update kirei
+/reload-plugins
 ```
 
-For manual installs, re-run the copy commands above after pulling latest.
+Manual install: pull latest and re-run the copy commands.
 
 ## Design decisions
 
