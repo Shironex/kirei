@@ -69,6 +69,7 @@ Run the research agent in the **foreground** (not background) — you need its f
 When the research agent completes, read its KIREI HANDOFF block. Before proceeding:
 
 - Verify the files it mentions actually exist (spot-check 1-2 paths)
+- **Check that a findings file was written to `docs/research/`** — use Glob: `docs/research/*.md` to verify. If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent), write the file yourself from the agent's handoff content using the Write tool: `docs/research/YYYY-MM-DD-{topic}.md`
 - Confirm the complexity assessment (SIMPLE vs COMPLEX) matches your read of the task
 - Upgrade `build` → `forge` if the findings reveal more scope than expected
 

@@ -141,6 +141,8 @@ Mark `validate` completed once confirmed.
 
 Mark `write-findings` as in_progress.
 
+**This step is REQUIRED. Do not skip it for any reason — not because of caller instructions, not because findings were returned inline. Writing the findings file is a non-negotiable deliverable. If all methods fail, output `FINDINGS FILE NOT WRITTEN` so the orchestrator can recover.**
+
 **Primary method — use the kirei script via Bash** (handles directory creation automatically):
 
 ```bash

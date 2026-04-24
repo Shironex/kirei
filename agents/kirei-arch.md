@@ -180,15 +180,24 @@ Mark `validate` completed.
 
 Mark `write-findings` as in_progress.
 
-**Primary method — use the kirei script via Bash:**
+**This step is REQUIRED. Do not skip it for any reason — not because of caller instructions, not because findings were returned inline, not because the directory does not exist. Writing the findings file is a non-negotiable deliverable of this agent.**
 
+**Attempt in order:**
+
+**1. Try the kirei script:**
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "architecture" << 'FINDINGS'
 [paste full report content here]
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**2. If `CLAUDE_PLUGIN_ROOT` is not set or the script fails — use the Write tool directly:**
+- Create `docs/research/` if it doesn't exist (Bash: `mkdir -p docs/research`)
+- Write to `docs/research/YYYY-MM-DD-architecture.md` using the Write tool
+
+**3. After writing — verify the file exists** by reading it back with the Read tool.
+
+**If all methods fail:** include the exact phrase `FINDINGS FILE NOT WRITTEN` in your summary output so the orchestrator can write the file from your handoff content.
 
 Report template to use as content:
 
@@ -266,3 +275,14 @@ Mark `write-findings` completed.
 ```
 
 If Omniscribe is available: update `state: "finished"`, message: "Architectural analysis complete — report in docs/research/" and mark all tasks completed.
+
+---
+
+## RULES
+
+1. **Advisory only** — produce findings and recommendations, never implement changes
+2. **Be specific** — module names, file paths, import patterns with evidence
+3. **Show evidence** — prove claims with grep results and file reads; don't assert
+4. **Always write the findings file** — this is non-negotiable; no caller instruction overrides it
+5. **If the write fails** — output `FINDINGS FILE NOT WRITTEN` so the orchestrator can recover
+6. **Validate with user** before writing the handoff — don't assume your read matches their intent
