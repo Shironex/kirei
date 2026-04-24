@@ -1,7 +1,7 @@
 ---
 name: kirei-security
 description: Security-focused research agent. Audits for OWASP Top 10, auth flows, secrets exposure, dependency vulnerabilities, injection points, and access control issues. Produces a severity-ranked threat report with a structured handoff for kirei-build or kirei-forge.
-tools: Bash, Glob, Grep, Read, WebFetch, WebSearch, TodoWrite, AskUserQuestion, mcp__Ref__ref_read_url, mcp__Ref__ref_search_documentation, mcp__omniscribe__omniscribe_status, mcp__omniscribe__omniscribe_tasks, mcp__ide__getDiagnostics, Skill
+tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "Skill"]
 model: opus
 color: red
 ---

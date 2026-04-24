@@ -1,7 +1,7 @@
 ---
 name: kirei-perf
 description: Performance research agent. Investigates bundle size, render bottlenecks, N+1 queries, memory leaks, cache misses, and latency hotspots. Produces a bottleneck map with measurable impact estimates and a structured handoff for kirei-build or kirei-forge.
-tools: Bash, Glob, Grep, Read, WebFetch, WebSearch, TodoWrite, AskUserQuestion, mcp__Ref__ref_read_url, mcp__Ref__ref_search_documentation, mcp__omniscribe__omniscribe_status, mcp__omniscribe__omniscribe_tasks, mcp__ide__getDiagnostics, mcp__ide__executeCode
+tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "mcp__ide__executeCode"]
 model: opus
 color: cyan
 ---

@@ -1,8 +1,18 @@
 ---
 name: kirei-forge
-description: Execute kirei research findings for complex tasks. Opus model — for multi-file changes, architectural decisions, new features, or any task where scope is broad or implementation order matters. Use kirei-build for simpler focused work.
+description: |
+  Use this agent to implement findings from a kirei research agent for complex tasks. Opus model — for multi-file changes, architectural decisions, new features, or any task where scope is broad or implementation order matters. Use kirei-build for simpler focused work.
+
+  <example>
+  Context: kirei-arch has produced a handoff requiring changes across 6 modules.
+  user: "implement the architectural refactor from the kirei findings"
+  assistant: "Spawning kirei-forge — this spans multiple modules so we need opus-level implementation."
+  <commentary>
+  Multi-file, ordering matters — kirei-forge (opus) handles the complexity that kirei-build would struggle with.
+  </commentary>
+  </example>
 model: opus
-color: orange
+color: yellow
 ---
 
 # KIREI-FORGE — Execute Agent (Complex Tasks)

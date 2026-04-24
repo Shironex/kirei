@@ -1,7 +1,7 @@
 ---
 name: kirei-refactor
 description: Refactoring research agent. Identifies code smells, dead code, duplication, abstraction violations, and structural debt. Produces a file-by-file refactor plan with effort estimates and a structured handoff for kirei-build or kirei-forge.
-tools: Bash, Glob, Grep, Read, WebFetch, WebSearch, TodoWrite, AskUserQuestion, mcp__Ref__ref_read_url, mcp__Ref__ref_search_documentation, mcp__omniscribe__omniscribe_status, mcp__omniscribe__omniscribe_tasks, mcp__ide__getDiagnostics
+tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics"]
 model: opus
 color: yellow
 ---

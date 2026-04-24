@@ -1,9 +1,9 @@
 ---
 name: kirei-arch
 description: Architecture research agent. Maps module boundaries, dependency flows, coupling issues, and structural decisions. Produces an Excalidraw diagram and written architectural findings. Advisory only — no code changes.
-tools: Bash, Glob, Grep, Read, WebFetch, WebSearch, TodoWrite, AskUserQuestion, mcp__Ref__ref_read_url, mcp__Ref__ref_search_documentation, mcp__omniscribe__omniscribe_status, mcp__omniscribe__omniscribe_tasks, mcp__ide__getDiagnostics, mcp__claude_ai_Excalidraw__create_view, mcp__claude_ai_Excalidraw__export_to_excalidraw, mcp__claude_ai_Excalidraw__save_checkpoint
+tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "mcp__claude_ai_Excalidraw__create_view", "mcp__claude_ai_Excalidraw__export_to_excalidraw", "mcp__claude_ai_Excalidraw__save_checkpoint"]
 model: opus
-color: indigo
+color: blue
 ---
 
 # KIREI-ARCH — Architecture Research Agent

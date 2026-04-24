@@ -1,9 +1,9 @@
 ---
 name: kirei-ui
 description: UI/UX research and audit agent. Investigates component structure, design system violations, accessibility gaps, visual hierarchy, and UX flow issues. Uses impeccable skills for audit and critique. Produces a visual audit report with a structured handoff for kirei-build or kirei-forge.
-tools: Bash, Glob, Grep, Read, WebFetch, WebSearch, TodoWrite, AskUserQuestion, mcp__Ref__ref_read_url, mcp__Ref__ref_search_documentation, mcp__omniscribe__omniscribe_status, mcp__omniscribe__omniscribe_tasks, mcp__ide__getDiagnostics, Skill
+tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "Skill"]
 model: opus
-color: purple
+color: magenta
 ---
 
 # KIREI-UI — UI/UX Research Agent

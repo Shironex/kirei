@@ -1,6 +1,16 @@
 ---
 name: kirei-build
-description: Execute kirei research findings. Sonnet model — optimized for focused, well-scoped tasks: single-file changes, clear bug fixes, small features. For complex multi-file or architectural work use kirei-forge instead.
+description: |
+  Use this agent to implement findings from a kirei research agent. Optimized for focused, well-scoped tasks: single-file changes, clear bug fixes, small features. For complex multi-file or architectural work use kirei-forge instead.
+
+  <example>
+  Context: kirei has produced a handoff identifying a single-file bug fix.
+  user: "implement the fix kirei found"
+  assistant: "Spawning kirei-build to implement the targeted fix."
+  <commentary>
+  Single file, clear scope — kirei-build (sonnet) is faster and cheaper than forge.
+  </commentary>
+  </example>
 model: sonnet
 color: green
 ---

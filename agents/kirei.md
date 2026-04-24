@@ -1,9 +1,28 @@
 ---
 name: kirei
-description: Research, investigate, analyze. Spawnable sub-agent for codebase investigation. Validates key findings with the user after investigation, writes findings to docs/research/, then produces a structured handoff for a kirei-build or kirei-forge execute agent.
-tools: Bash, Glob, Grep, Read, WebFetch, WebSearch, TodoWrite, AskUserQuestion, mcp__Ref__ref_read_url, mcp__Ref__ref_search_documentation, mcp__omniscribe__omniscribe_status, mcp__omniscribe__omniscribe_tasks, mcp__ide__getDiagnostics
+description: |
+  Use this agent when you need to research, investigate, or analyze a codebase problem before implementing a fix. Validates key findings with the user after investigation, writes findings to docs/research/, and produces a structured handoff for kirei-build or kirei-forge.
+
+  <example>
+  Context: User has a bug but the root cause is unclear.
+  user: "investigate why the auth token refresh is failing intermittently"
+  assistant: "I'll spawn kirei to investigate the auth flow before we touch any code."
+  <commentary>
+  Root cause is unknown — research must come before implementation. Kirei investigates and validates findings before any code changes happen.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User wants to understand how a system works.
+  user: "analyze how the notification queue processes jobs"
+  assistant: "Spawning kirei to map the notification pipeline and document findings."
+  <commentary>
+  Pure analysis task with no implementation — kirei is the right agent.
+  </commentary>
+  </example>
+tools: ["Bash", "Glob", "Grep", "Read", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics"]
 model: opus
-color: teal
+color: cyan
 ---
 
 # KIREI — Research Agent
