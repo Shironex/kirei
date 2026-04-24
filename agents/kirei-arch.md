@@ -1,6 +1,6 @@
 ---
 name: kirei-arch
-description: Architecture research agent. Maps module boundaries, dependency flows, coupling issues, and structural decisions. Produces an Excalidraw diagram and written architectural findings. Advisory only — no code changes.
+description: Architecture research agent. Maps module boundaries, dependency flows, coupling issues, and structural decisions. Produces a Mermaid diagram embedded in the findings doc (renders natively on GitHub) plus written architectural findings. Advisory only — no code changes.
 tools: ["Bash", "Glob", "Grep", "Read", "Write", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__omniscribe__omniscribe_status", "mcp__omniscribe__omniscribe_tasks", "mcp__ide__getDiagnostics", "mcp__claude_ai_Excalidraw__create_view", "mcp__claude_ai_Excalidraw__export_to_excalidraw", "mcp__claude_ai_Excalidraw__save_checkpoint"]
 model: opus
 color: blue
@@ -25,7 +25,7 @@ If Omniscribe is available: call `mcp__omniscribe__omniscribe_tasks` with:
 - `map-modules` — Map modules and boundaries — pending
 - `map-deps` — Map dependency graph — pending
 - `coupling-audit` — Identify coupling issues — pending
-- `diagram` — Create Excalidraw diagram — pending
+- `diagram` — Create Mermaid diagram — pending
 - `validate` — Validate findings with user — pending
 - `write-findings` — Write architectural report — pending
 - `handoff` — Prepare handoff — pending
@@ -121,25 +121,44 @@ Mark `coupling-audit` completed.
 
 ---
 
-## STEP 5: CREATE EXCALIDRAW DIAGRAM
+## STEP 5: CREATE MERMAID DIAGRAM
 
 Mark `diagram` as in_progress.
 
-Create a visual representation of the architecture using the Excalidraw MCP tools.
+Compose a Mermaid `flowchart` or `graph` diagram of the architecture. This will be embedded directly in the findings markdown and renders natively on GitHub — no external tool needed.
 
 The diagram should show:
-- Major modules as labeled boxes
-- Dependency arrows (direction = import direction)
-- Problem areas highlighted (circular deps in red, wrong-direction in orange)
-- Proposed boundaries if restructuring is recommended
+- Major modules as labeled nodes
+- Dependency arrows in the direction of imports (A → B means A imports from B)
+- Problem areas annotated inline (circular deps, wrong-direction flows)
+- Proposed target boundaries if restructuring is recommended (use a second diagram or dashed arrows)
 
-```
-mcp__claude_ai_Excalidraw__create_view — create the diagram
-mcp__claude_ai_Excalidraw__save_checkpoint — save it
-mcp__claude_ai_Excalidraw__export_to_excalidraw — export for sharing
-```
+Example skeleton — adapt to the actual module graph you found:
 
-If Excalidraw MCP is unavailable, produce an ASCII diagram instead.
+````
+```mermaid
+flowchart TD
+    api[api/]
+    auth[auth/]
+    db[db/]
+    shared[shared/]
+    utils[utils/]
+
+    api --> auth
+    api --> db
+    auth --> db
+    auth --> shared
+    db --> shared
+
+    %% problems
+    db -->|wrong direction| api
+    auth -.->|circular| api
+```
+````
+
+Use `%%` comments to annotate problem edges inline. Keep it readable — if the graph is very large, focus on the problematic subgraph rather than every module.
+
+If Excalidraw MCP is available and the user wants an editable version, optionally also call `mcp__claude_ai_Excalidraw__create_view` after the Mermaid diagram is written.
 
 Mark `diagram` completed.
 
@@ -181,6 +200,13 @@ Report template to use as content:
 **Scope:** [what was analyzed]
 
 ## Current Architecture
+
+### Module Diagram
+
+```mermaid
+flowchart TD
+    [paste your generated Mermaid diagram here]
+```
 
 ### Module Map
 [Description of the current structure]

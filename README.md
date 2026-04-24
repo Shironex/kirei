@@ -21,7 +21,37 @@ A specialized agent team for Claude Code. Automated research → execute workflo
 
 ## How it works
 
-1. `/kirei` detects task type (security/ui/refactor/perf/arch/general) and complexity (build/forge)
+```mermaid
+flowchart TD
+    skill(["/kirei:kirei task"])
+
+    skill --> detect{auto-detect\ntype}
+
+    detect -->|general| kirei[kirei\nopus · cyan]
+    detect -->|security| sec[kirei-security\nopus · red]
+    detect -->|ui| ui[kirei-ui\nopus · magenta]
+    detect -->|refactor| ref[kirei-refactor\nopus · yellow]
+    detect -->|perf| perf[kirei-perf\nopus · cyan]
+    detect -->|arch| arch[kirei-arch\nopus · blue]
+
+    kirei --> findings
+    sec --> findings
+    ui --> findings
+    ref --> findings
+    perf --> findings
+    arch -->|advisory only| findings
+
+    findings([docs/research/\nYYYY-MM-DD-topic.md])
+
+    findings -->|simple scope| build[kirei-build\nsonnet · green]
+    findings -->|complex scope| forge[kirei-forge\nopus · yellow]
+    arch -->|no code changes| done
+
+    build --> done([changes implemented\n+ verified])
+    forge --> done
+```
+
+1. `/kirei` auto-detects task type (security/ui/refactor/perf/arch/general) and complexity (build/forge)
 2. Spawns the appropriate `kirei-*` research agent
 3. Research agent investigates, validates findings with the user via AskUserQuestion, writes `docs/research/YYYY-MM-DD-topic.md` in the target repo, and produces a structured handoff
 4. Spawns `kirei-build` (sonnet) or `kirei-forge` (opus) with the handoff
