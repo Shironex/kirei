@@ -1,7 +1,7 @@
 {
   "name": "kirei",
-  "version": "1.3.0",
-  "description": "Specialized research + execute agent team for Claude Code. Auto-detects task type (security, UI, refactor, performance, architecture) and complexity. Spawns the right specialist agent to investigate, then the right execute agent to implement.",
+  "version": "1.4.0",
+  "description": "Specialized research + execute agent team for Claude Code. Auto-detects task type (security, UI, refactor, performance, architecture, test, migrate, review, debug, data) and complexity. Spawns the right specialist agent to investigate, then the right execute agent to implement. Includes /kirei-chain for parallel multi-lens research.",
   "author": {
     "name": "Shironex",
     "email": "support@shirone.dev",
@@ -10,5 +10,5 @@
   "homepage": "https://github.com/Shironex/kirei",
   "repository": "https://github.com/Shironex/kirei",
   "license": "MIT",
-  "keywords": ["agents", "research", "security", "refactoring", "performance", "ui-ux", "architecture"]
+  "keywords": ["agents", "research", "security", "refactoring", "performance", "ui-ux", "architecture", "testing", "migration", "code-review", "debugging", "database"]
 }
