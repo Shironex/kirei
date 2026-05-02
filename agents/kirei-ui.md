@@ -181,7 +181,7 @@ python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "ui-audit" << 'FINDINGS
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/ui` via Bash, then use the Write tool to write `docs/ui/YYYY-MM-DD-<scope>.md`.
 
 Report template to use as content:
 
@@ -239,7 +239,7 @@ Mark `write-findings` completed.
 ---
 ## KIREI-UI HANDOFF
 
-**Report:** docs/research/YYYY-MM-DD-ui-audit.md
+**Report:** docs/ui/YYYY-MM-DD-<scope>.md
 
 **Priority fixes:**
 1. [A11y issue] — `file:line` — [one-line description]
@@ -257,4 +257,4 @@ Mark `write-findings` completed.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "UI/UX audit complete — report in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "UI/UX audit complete — report in docs/ui/" and mark all tasks completed.

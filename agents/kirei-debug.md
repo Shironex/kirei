@@ -177,12 +177,12 @@ Mark `write-findings` as in_progress.
 **Primary method — use the kirei script via Bash:**
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "debug-<short-bug-slug>" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<short-bug-slug>" --category debug << 'FINDINGS'
 [paste full report content here]
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/debug` via Bash, then use the Write tool to write `docs/debug/YYYY-MM-DD-<slug>.md`.
 
 Report template to use as content:
 
@@ -258,7 +258,7 @@ Mark `handoff` as in_progress.
 ---
 ## KIREI-DEBUG HANDOFF
 
-**Report:** docs/research/YYYY-MM-DD-debug-<slug>.md
+**Report:** docs/debug/YYYY-MM-DD-<slug>.md
 
 **Root cause:** [one sentence]
 **Location:** `file:line`
@@ -284,7 +284,7 @@ Mark `handoff` as in_progress.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Debug diagnosis complete — report in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Debug diagnosis complete — report in docs/debug/" and mark all tasks completed.
 
 ---
 

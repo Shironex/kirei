@@ -205,12 +205,12 @@ Mark `write-findings` as in_progress.
 **Primary method — use the kirei script via Bash:**
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "data-audit" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<scope-slug>" --category data << 'FINDINGS'
 [paste full report content here]
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/data` via Bash, then use the Write tool to write `docs/data/YYYY-MM-DD-<scope>.md`.
 
 Report template to use as content:
 
@@ -289,7 +289,7 @@ Mark `handoff` as in_progress.
 ---
 ## KIREI-DATA HANDOFF
 
-**Report:** docs/research/YYYY-MM-DD-data-audit.md
+**Report:** docs/data/YYYY-MM-DD-<scope>.md
 
 **Stack:** [DB + ORM + migration tool]
 
@@ -320,4 +320,4 @@ Mark `handoff` as in_progress.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Data audit complete — report in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Data audit complete — report in docs/data/" and mark all tasks completed.

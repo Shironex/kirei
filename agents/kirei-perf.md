@@ -201,7 +201,7 @@ python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "performance-report" <<
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/perf` via Bash, then use the Write tool to write `docs/perf/YYYY-MM-DD-<scope>.md`.
 
 Report template to use as content:
 
@@ -248,7 +248,7 @@ Mark `write-findings` completed.
 ---
 ## KIREI-PERF HANDOFF
 
-**Report:** docs/research/YYYY-MM-DD-performance-report.md
+**Report:** docs/perf/YYYY-MM-DD-<scope>.md
 
 **Fix order (highest impact first):**
 1. [Issue] — `file:line` — [fix description] — Impact: [estimate]
@@ -264,4 +264,4 @@ Mark `write-findings` completed.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Performance analysis complete — report in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Performance analysis complete — report in docs/perf/" and mark all tasks completed.

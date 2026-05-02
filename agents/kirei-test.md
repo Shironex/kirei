@@ -164,12 +164,12 @@ Mark `write-findings` as in_progress.
 **Primary method — use the kirei script via Bash:**
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "test-plan" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<scope-slug>" --category test << 'FINDINGS'
 [paste full plan content here]
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/test` via Bash, then use the Write tool to write `docs/test/YYYY-MM-DD-<scope>.md`.
 
 Plan template to use as content:
 
@@ -243,7 +243,7 @@ Mark `handoff` as in_progress.
 ---
 ## KIREI-TEST HANDOFF
 
-**Plan:** docs/research/YYYY-MM-DD-test-plan.md
+**Plan:** docs/test/YYYY-MM-DD-<scope>.md
 
 **Test stack:** [runner / assertion lib]
 
@@ -265,4 +265,4 @@ Mark `handoff` as in_progress.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Test plan complete — plan in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Test plan complete — plan in docs/test/" and mark all tasks completed.

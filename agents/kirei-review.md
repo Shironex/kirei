@@ -187,14 +187,14 @@ Mark `write-findings` as in_progress.
 **Primary method — use the kirei script via Bash:**
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "review-<slug>" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<slug>" --category review << 'FINDINGS'
 [paste full report content here]
 FINDINGS
 ```
 
-Slug examples: `review-pr-1234`, `review-pr-1234-comments`, `review-branch-feat-auth`.
+Slug examples: `pr-1234`, `pr-1234-comments`, `branch-feat-auth`.
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/review` via Bash, then use the Write tool to write `docs/review/YYYY-MM-DD-<slug>.md`.
 
 ### Template — review modes (local / PR)
 
@@ -293,7 +293,7 @@ Mark `handoff` as in_progress.
 ---
 ## KIREI-REVIEW HANDOFF
 
-**Report:** docs/research/YYYY-MM-DD-review-<slug>.md
+**Report:** docs/review/YYYY-MM-DD-<slug>.md
 **Mode:** local | pr-#NNN
 
 **Verdict:** ship | ship-with-changes | blocked
@@ -318,7 +318,7 @@ Mark `handoff` as in_progress.
 ---
 ## KIREI-REVIEW HANDOFF (address-pr-comments)
 
-**Report:** docs/research/YYYY-MM-DD-review-pr-NNN-comments.md
+**Report:** docs/review/YYYY-MM-DD-pr-NNN-comments.md
 **PR:** #NNN
 
 **Comments to address (VALID only):**
@@ -343,7 +343,7 @@ Mark `handoff` as in_progress.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Review complete — report in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Review complete — report in docs/review/" and mark all tasks completed.
 
 ---
 

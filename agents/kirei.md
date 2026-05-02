@@ -146,7 +146,7 @@ Mark `write-findings` as in_progress.
 **Primary method — use the kirei script via Bash** (handles directory creation automatically):
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "short-topic-slug" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<short-topic-slug>" --category research << 'FINDINGS'
 # Research: {Topic}
 
 **Date:** YYYY-MM-DD
@@ -198,7 +198,7 @@ python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "short-topic-slug" << '
 FINDINGS
 ```
 
-The script prints `ok: docs/research/YYYY-MM-DD-short-topic-slug.md` on success.
+The script prints `ok: docs/research/YYYY-MM-DD-<topic>.md` on success.
 
 **Fallback — if `CLAUDE_PLUGIN_ROOT` is not set** (standalone install):
 1. `mkdir -p docs/research` via Bash

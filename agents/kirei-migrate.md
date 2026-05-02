@@ -169,12 +169,12 @@ Mark `write-findings` as in_progress.
 **Primary method — use the kirei script via Bash:**
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "migrate-<package>-<to-version>" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<package>-<to-version>" --category migrate << 'FINDINGS'
 [paste full plan content here]
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/migrate` via Bash, then use the Write tool to write `docs/migrate/YYYY-MM-DD-<package>-<to>.md`.
 
 Plan template to use as content:
 
@@ -251,7 +251,7 @@ Mark `handoff` as in_progress.
 ---
 ## KIREI-MIGRATE HANDOFF
 
-**Plan:** docs/research/YYYY-MM-DD-migrate-<package>-<to>.md
+**Plan:** docs/migrate/YYYY-MM-DD-<package>-<to>.md
 
 **Target:** `<package>` `<from>` → `<to>`
 
@@ -277,4 +277,4 @@ Mark `handoff` as in_progress.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Migration plan complete — plan in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Migration plan complete — plan in docs/migrate/" and mark all tasks completed.

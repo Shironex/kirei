@@ -167,12 +167,12 @@ Mark `write-findings` as in_progress.
 **Primary method — use the kirei script via Bash:**
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "security-audit" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<scope-slug>" --category security << 'FINDINGS'
 [paste full report content here]
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/security` via Bash, then use the Write tool to write `docs/security/YYYY-MM-DD-<scope>.md`.
 
 Report template to use as content:
 
@@ -227,7 +227,7 @@ Mark `handoff` as in_progress.
 ---
 ## KIREI-SECURITY HANDOFF
 
-**Report:** docs/research/YYYY-MM-DD-security-audit.md
+**Report:** docs/security/YYYY-MM-DD-<scope>.md
 
 **Fix priority order:**
 1. CRITICAL: [finding] — `file:line` — [one-line fix description]
@@ -242,4 +242,4 @@ Mark `handoff` as in_progress.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Security audit complete — report in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Security audit complete — report in docs/security/" and mark all tasks completed.

@@ -1,6 +1,6 @@
 {
   "name": "kirei",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Specialized research + execute agent team for Claude Code. Auto-detects task type (security, UI, refactor, performance, architecture, test, migrate, review, debug, data) and complexity. Spawns the right specialist agent to investigate, then the right execute agent to implement. Includes /kirei-chain for parallel multi-lens research.",
   "author": {
     "name": "Shironex",

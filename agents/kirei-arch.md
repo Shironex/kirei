@@ -186,14 +186,14 @@ Mark `write-findings` as in_progress.
 
 **1. Try the kirei script:**
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "architecture" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<scope-slug>" --category arch << 'FINDINGS'
 [paste full report content here]
 FINDINGS
 ```
 
 **2. If `CLAUDE_PLUGIN_ROOT` is not set or the script fails — use the Write tool directly:**
-- Create `docs/research/` if it doesn't exist (Bash: `mkdir -p docs/research`)
-- Write to `docs/research/YYYY-MM-DD-architecture.md` using the Write tool
+- Create `docs/arch/` if it doesn't exist (Bash: `mkdir -p docs/arch`)
+- Write to `docs/arch/YYYY-MM-DD-<scope>.md` using the Write tool
 
 **3. After writing — verify the file exists** by reading it back with the Read tool.
 
@@ -260,7 +260,7 @@ Mark `write-findings` completed.
 ---
 ## KIREI-ARCH HANDOFF
 
-**Report:** docs/research/YYYY-MM-DD-architecture.md
+**Report:** docs/arch/YYYY-MM-DD-<scope>.md
 
 **This is an advisory report.** Architectural changes are large and risky — discuss the migration path with the team before implementing.
 
@@ -274,7 +274,7 @@ Mark `write-findings` completed.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Architectural analysis complete — report in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Architectural analysis complete — report in docs/arch/" and mark all tasks completed.
 
 ---
 

@@ -47,7 +47,7 @@ pwd && ls -la
 
 ## STEP 2: PARSE FINDINGS
 
-Read the kirei handoff block and/or the findings doc at `docs/research/`. Extract:
+Read the kirei handoff block and/or the findings doc. Findings now live under per-category folders — `docs/<category>/YYYY-MM-DD-<slug>.md` (e.g. `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, or `docs/research/` for the general agent). The exact path is in the handoff. Extract:
 
 - **Root cause** — what's wrong
 - **Files to modify** — exact paths and what changes in each

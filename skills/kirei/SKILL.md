@@ -77,19 +77,19 @@ Skip if `--findings <path>` was passed.
 
 Spawn the appropriate research agent using the Agent tool. The agent has **no session context** — include everything it needs in the prompt.
 
-| Task type | Agent to spawn |
-|-----------|---------------|
-| `general` | `kirei` |
-| `security` | `kirei-security` |
-| `ui` | `kirei-ui` |
-| `refactor` | `kirei-refactor` |
-| `perf` | `kirei-perf` |
-| `arch` | `kirei-arch` |
-| `test` | `kirei-test` |
-| `migrate` | `kirei-migrate` |
-| `review` | `kirei-review` |
-| `debug` | `kirei-debug` |
-| `data` | `kirei-data` |
+| Task type | Agent to spawn | Findings folder |
+|-----------|---------------|-----------------|
+| `general` | `kirei` | `docs/research/` |
+| `security` | `kirei-security` | `docs/security/` |
+| `ui` | `kirei-ui` | `docs/ui/` |
+| `refactor` | `kirei-refactor` | `docs/refactor/` |
+| `perf` | `kirei-perf` | `docs/perf/` |
+| `arch` | `kirei-arch` | `docs/arch/` |
+| `test` | `kirei-test` | `docs/test/` |
+| `migrate` | `kirei-migrate` | `docs/migrate/` |
+| `review` | `kirei-review` | `docs/review/` |
+| `debug` | `kirei-debug` | `docs/debug/` |
+| `data` | `kirei-data` | `docs/data/` |
 
 **Prompt structure for the research agent:**
 ```
@@ -100,7 +100,8 @@ Working directory: [current working directory]
 Context:
 [Any relevant context from the conversation — file paths mentioned, symptoms observed, recent changes, constraints]
 
-Deliver: structured KIREI HANDOFF block + write findings to docs/research/ in this repo.
+Deliver: structured KIREI HANDOFF block + write findings to its category folder in this repo
+(e.g. docs/security/ for kirei-security, docs/perf/ for kirei-perf — see your agent prompt for the exact path).
 ```
 
 Run the research agent in the **foreground** (not background) — you need its findings before spawning the execute agent.
@@ -110,7 +111,7 @@ Run the research agent in the **foreground** (not background) — you need its f
 When the research agent completes, read its KIREI HANDOFF block. Before proceeding:
 
 - Verify the files it mentions actually exist (spot-check 1-2 paths)
-- **Check that a findings file was written to `docs/research/`** — use Glob: `docs/research/*.md` to verify. If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent), write the file yourself from the agent's handoff content using the Write tool: `docs/research/YYYY-MM-DD-{topic}.md`
+- **Check that a findings file was written to the agent's category folder** — use Glob (e.g. `docs/security/*.md` for kirei-security, `docs/perf/*.md` for kirei-perf — see the table above). If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent for today), write the file yourself from the agent's handoff content using the Write tool at `docs/<category>/YYYY-MM-DD-{topic}.md`
 - Confirm the complexity assessment (SIMPLE vs COMPLEX) matches your read of the task
 - Upgrade `build` → `forge` if the findings reveal more scope than expected
 
@@ -135,7 +136,8 @@ Working directory: [current working directory]
 Here is the KIREI HANDOFF from the research agent:
 [paste full handoff block]
 
-Findings doc is at: docs/research/[filename]
+Findings doc is at: docs/<category>/[filename]
+(category matches the research agent — e.g. security, perf, refactor, test, migrate, review, debug, data, arch, ui, or research for general)
 
 Implement the recommended fix. Follow the verification steps in the handoff.
 ```
@@ -155,7 +157,7 @@ Once the execute agent completes (or after Step 5 if `--research-only`), summari
 - What was investigated and what was found (1-2 sentences)
 - What was changed (files modified) — or "research only, no code changes" if applicable
 - How to verify it works
-- Point to `docs/research/[filename]` for the full findings
+- Point to `docs/<category>/[filename]` for the full findings (the path is in the handoff)
 
 For `kirei-review --address-pr-comments`: also list the **suggested replies** for INVALID comments so the user can paste them back on the PR.
 

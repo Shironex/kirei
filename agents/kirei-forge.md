@@ -47,7 +47,7 @@ cat package.json 2>/dev/null | head -30
 
 ## STEP 2: PARSE FINDINGS
 
-Read the kirei handoff and findings doc at `docs/research/` in full. Extract:
+Read the kirei handoff and findings doc in full. Findings live under per-category folders — `docs/<category>/YYYY-MM-DD-<slug>.md` (e.g. `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, or `docs/research/` for the general agent). The exact path is in the handoff. Extract:
 - Root cause and all affected systems
 - All files to modify (not just the primary one)
 - Dependencies between changes

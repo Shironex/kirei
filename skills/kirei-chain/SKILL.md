@@ -61,6 +61,8 @@ For each lens, pick the agent:
 | `data` | `kirei-data` |
 | `general` | `kirei` |
 
+Each agent writes its findings to its own category folder (e.g. `docs/security/`, `docs/perf/`, `docs/arch/` — see the per-agent prompts).
+
 **Prompt structure for each spawned agent** (each agent has no shared context — include everything):
 
 ```
@@ -74,7 +76,8 @@ Context:
 You are part of a parallel kirei-chain investigation alongside: [other agents in this run].
 Stay in YOUR lens — do not duplicate the others' work. Note in your handoff if you see something obviously in another lens.
 
-Deliver: structured KIREI HANDOFF block + write findings to docs/research/ in this repo.
+Deliver: structured KIREI HANDOFF block + write findings to your category folder
+(e.g. docs/security/ for kirei-security, docs/perf/ for kirei-perf — see your agent prompt for the exact path).
 ```
 
 Run them in the **foreground**. You need every result before the merge step.
@@ -88,7 +91,7 @@ If `kirei-arch` is one of the lenses, note that it's advisory only — that's fi
 When all parallel agents complete:
 
 - For each one, read its KIREI HANDOFF block.
-- Verify each agent wrote a findings file (Glob `docs/research/*.md` filtered by today's date). If any agent printed `FINDINGS FILE NOT WRITTEN`, write that one yourself from its handoff content using the Write tool.
+- Verify each agent wrote a findings file. Glob the lens-specific folder filtered by today's date (e.g. `docs/security/2026-*.md` for the security lens). If any agent printed `FINDINGS FILE NOT WRITTEN`, write that one yourself from its handoff content using the Write tool to the correct category folder.
 - Spot-check 1-2 file paths each agent referenced — make sure they exist.
 
 If any agent failed entirely (errored out, no handoff), report that to the user before merging. Do not silently drop a lens.
@@ -100,7 +103,7 @@ If any agent failed entirely (errored out, no handoff), report that to the user 
 Write a **new** combined doc that links to and synthesizes the per-lens docs. Don't duplicate the entire per-lens content — link to the originals and pull out the cross-cutting takeaways.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "chain-<short-topic-slug>" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<short-topic-slug>" --category chain << 'FINDINGS'
 # Combined Findings: <Topic>
 
 **Date:** YYYY-MM-DD
@@ -109,9 +112,9 @@ python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "chain-<short-topic-slu
 **Scope:** [what was investigated]
 
 ## Per-Lens Reports
-- **Security:** docs/research/YYYY-MM-DD-security-audit.md
-- **Performance:** docs/research/YYYY-MM-DD-perf-report.md
-- **Architecture:** docs/research/YYYY-MM-DD-arch-report.md
+- **Security:** docs/security/YYYY-MM-DD-<slug>.md
+- **Performance:** docs/perf/YYYY-MM-DD-<slug>.md
+- **Architecture:** docs/arch/YYYY-MM-DD-<slug>.md
 
 ## Cross-Cutting Themes
 [Patterns that appeared in 2+ lenses — these are the highest-leverage findings.
@@ -140,7 +143,7 @@ recommend a follow-up /kirei or /kirei-chain run.]
 FINDINGS
 ```
 
-If `CLAUDE_PLUGIN_ROOT` is not set: `mkdir -p docs/research` via Bash, then use Write.
+If `CLAUDE_PLUGIN_ROOT` is not set: `mkdir -p docs/chain` via Bash, then use Write to write `docs/chain/YYYY-MM-DD-<slug>.md`.
 
 ---
 
@@ -150,9 +153,9 @@ If `CLAUDE_PLUGIN_ROOT` is not set: `mkdir -p docs/research` via Bash, then use 
 ---
 ## KIREI-CHAIN HANDOFF
 
-**Combined report:** docs/research/YYYY-MM-DD-chain-<slug>.md
+**Combined report:** docs/chain/YYYY-MM-DD-<slug>.md
 **Lenses:** [list]
-**Per-lens reports:** linked in the combined doc
+**Per-lens reports:** linked in the combined doc (one file per lens, in its own category folder)
 
 **Cross-cutting blockers:**
 - [Item that appeared in 2+ lenses] — `file:line`
@@ -162,7 +165,7 @@ If `CLAUDE_PLUGIN_ROOT` is not set: `mkdir -p docs/research` via Bash, then use 
 2. ...
 
 **Suggested next step:**
-- Single broad implementation: `/kirei [task] --findings docs/research/YYYY-MM-DD-chain-<slug>.md`
+- Single broad implementation: `/kirei [task] --findings docs/chain/YYYY-MM-DD-<slug>.md`
 - Per-lens implementation: spawn `/kirei` separately for each lens's top item
 
 **This skill does NOT auto-execute — user decides how to act on the merged findings.**

@@ -6,19 +6,22 @@ A specialized agent team for Claude Code. Automated research → execute workflo
 
 ### Research agents (analyse, prescribe, hand off)
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| `kirei` | opus | General research & investigation |
-| `kirei-security` | opus | Security audit (OWASP, auth, injection) |
-| `kirei-ui` | opus | UI/UX audit (impeccable skills integration) |
-| `kirei-refactor` | opus | Code quality & refactoring plan |
-| `kirei-perf` | opus | Performance bottleneck analysis |
-| `kirei-arch` | opus | Architecture mapping + Mermaid diagram |
-| `kirei-test` | opus | Test coverage gaps, missing edge cases, flake hunt |
-| `kirei-migrate` | opus | Dependency / framework upgrade plan with breaking-change map |
-| `kirei-review` | opus | Code review of pending changes or a GitHub PR; can also classify reviewer comments (`--address-pr-comments`) |
-| `kirei-debug` | opus | Reproduce + root-cause a specific bug; may add tracked temp instrumentation |
-| `kirei-data` | opus | Schema / migration safety / query / index audit |
+Each research agent writes its findings to its own folder under `docs/`, so reports stay organised by domain instead of piling up in one place.
+
+| Agent | Model | Findings folder | Purpose |
+|-------|-------|----------------|---------|
+| `kirei` | opus | `docs/research/` | General research & investigation |
+| `kirei-security` | opus | `docs/security/` | Security audit (OWASP, auth, injection) |
+| `kirei-ui` | opus | `docs/ui/` | UI/UX audit (impeccable skills integration) |
+| `kirei-refactor` | opus | `docs/refactor/` | Code quality & refactoring plan |
+| `kirei-perf` | opus | `docs/perf/` | Performance bottleneck analysis |
+| `kirei-arch` | opus | `docs/arch/` | Architecture mapping + Mermaid diagram |
+| `kirei-test` | opus | `docs/test/` | Test coverage gaps, missing edge cases, flake hunt |
+| `kirei-migrate` | opus | `docs/migrate/` | Dependency / framework upgrade plan with breaking-change map |
+| `kirei-review` | opus | `docs/review/` | Code review of pending changes or a GitHub PR; can also classify reviewer comments (`--address-pr-comments`) |
+| `kirei-debug` | opus | `docs/debug/` | Reproduce + root-cause a specific bug; may add tracked temp instrumentation |
+| `kirei-data` | opus | `docs/data/` | Schema / migration safety / query / index audit |
+| `/kirei-chain` (skill) | — | `docs/chain/` | Combined report from a multi-lens parallel run |
 
 ### Execute agents (implement findings)
 
@@ -81,7 +84,7 @@ flowchart TD
     dbg --> findings
     data --> findings
 
-    findings([docs/research/\nYYYY-MM-DD-topic.md])
+    findings([docs/&lt;category&gt;/\nYYYY-MM-DD-slug.md])
 
     findings -->|simple scope| build[kirei-build\nsonnet · green]
     findings -->|complex scope| forge[kirei-forge\nopus · yellow]
@@ -94,7 +97,7 @@ flowchart TD
 
 1. `/kirei` auto-detects task type and complexity (build/forge)
 2. Spawns the appropriate `kirei-*` research agent
-3. Research agent investigates, validates findings with the user via AskUserQuestion, writes `docs/research/YYYY-MM-DD-topic.md` in the target repo, and produces a structured handoff
+3. Research agent investigates, validates findings with the user via AskUserQuestion, writes `docs/<category>/YYYY-MM-DD-<slug>.md` in the target repo (one folder per agent — see table above), and produces a structured handoff
 4. Spawns `kirei-build` (sonnet) or `kirei-forge` (opus) with the handoff (skipped if `--research-only`)
 5. Execute agent implements and verifies
 
@@ -110,7 +113,7 @@ flowchart TD
     a --> merge[merge findings]
     b --> merge
     c --> merge
-    merge --> combined([docs/research/\nYYYY-MM-DD-chain-topic.md])
+    merge --> combined([docs/chain/\nYYYY-MM-DD-slug.md])
     combined -->|user decides next move| user([user runs /kirei or /kirei type])
 ```
 
@@ -178,6 +181,6 @@ Manual install: pull latest and re-run the copy commands.
 
 - **Ref MCP for docs** — agents use `mcp__Ref__ref_*` for library documentation; falls back to WebSearch if unavailable. context7 is not used.
 - **AskUserQuestion after investigation** — findings are validated with the user once analysis is complete, not before. Prevents scope conversations from slowing down clear tasks.
-- **Findings persistence** — every investigation writes to `docs/research/` in the target repo so findings survive across sessions.
+- **Findings persistence, organised by domain** — every investigation writes to `docs/<category>/YYYY-MM-DD-<slug>.md` in the target repo (one folder per agent: `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, `docs/chain/`, plus `docs/research/` for the general agent). Findings survive across sessions and stay sorted instead of piling up in one folder.
 - **Two execute tiers** — kirei-build (sonnet) for focused changes, kirei-forge (opus) for complex multi-file work. Research agent recommends which; orchestrator skill decides.
 - **Omniscribe integration** — all agents update omniscribe_status and omniscribe_tasks throughout so the UI stays in sync.

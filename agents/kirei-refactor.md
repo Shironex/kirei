@@ -153,12 +153,12 @@ Mark `write-findings` as in_progress.
 **Primary method — use the kirei script via Bash:**
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "refactor-plan" << 'FINDINGS'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/write-findings.py" "<scope-slug>" --category refactor << 'FINDINGS'
 [paste full plan content here]
 FINDINGS
 ```
 
-**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/research` via Bash, then use the Write tool.
+**Fallback** if `CLAUDE_PLUGIN_ROOT` is not set: run `mkdir -p docs/refactor` via Bash, then use the Write tool to write `docs/refactor/YYYY-MM-DD-<scope>.md`.
 
 Plan template to use as content:
 
@@ -227,7 +227,7 @@ Mark `write-findings` completed.
 ---
 ## KIREI-REFACTOR HANDOFF
 
-**Plan:** docs/research/YYYY-MM-DD-refactor-plan.md
+**Plan:** docs/refactor/YYYY-MM-DD-<scope>.md
 
 **Implementation order:**
 1. [Change] — `file:line` — [one-line description] — Effort: XS/S/M/L
@@ -247,4 +247,4 @@ Mark `write-findings` completed.
 ---
 ```
 
-If Omniscribe is available: update `state: "finished"`, message: "Refactor analysis complete — plan in docs/research/" and mark all tasks completed.
+If Omniscribe is available: update `state: "finished"`, message: "Refactor analysis complete — plan in docs/refactor/" and mark all tasks completed.
