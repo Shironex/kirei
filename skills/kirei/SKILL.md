@@ -1,6 +1,6 @@
 ---
 name: kirei
-description: Orchestrate research + execution for any engineering task. Auto-detects task type (security/ui/refactor/perf/arch/test/migrate/review/debug/data/general) and complexity (build vs forge). Spawns the right kirei specialist research agent, then the right execute agent with findings. Pass --research-only to skip the execute step. Invoke with /kirei followed by a task description.
+description: Orchestrate research + execution for any engineering task. Auto-detects task type (security, ui, refactor, perf, arch, test, migrate, review, debug, data, or general) and execute complexity (build vs forge), then spawns the right specialist research agent followed by the right execute agent. Use whenever the user asks to investigate, audit, fix, refactor, debug, optimize, review, or implement anything that benefits from research before code — even if they don't say "kirei". Pass --research-only to skip the execute step. Invoke with /kirei followed by a task description.
 ---
 
 You have been invoked via `/kirei`. Follow this workflow precisely.
@@ -47,6 +47,8 @@ Tie-breakers:
 - A "performance bug" with a clear repro → `debug` (focus on root cause), not `perf` (which is broad bottleneck mapping).
 - "Test coverage for X" → `test`, not `general`.
 - "Migration is locking the table" → `data` (migration safety), not `migrate` (version upgrade).
+- N+1 in DB queries / ORM → `data`. N+1 in API calls, render loops, or non-DB iteration → `perf`.
+- "Audit our deps" / "what's safe to bump" / "check Dependabot" / "run npm/pnpm audit" → recommend `/kirei-deps` (purpose-built for dependency hygiene); only fall back to `security` if the user wants the full codebase audit.
 - "Review my PR" with no `--pr` flag → ask which PR or assume current branch's PR.
 
 ## 2. DETECT EXECUTE COMPLEXITY
@@ -110,10 +112,12 @@ Run the research agent in the **foreground** (not background) — you need its f
 
 When the research agent completes, read its KIREI HANDOFF block. Before proceeding:
 
-- Verify the files it mentions actually exist (spot-check 1-2 paths)
-- **Check that a findings file was written to the agent's category folder** — use Glob (e.g. `docs/security/*.md` for kirei-security, `docs/perf/*.md` for kirei-perf — see the table above). If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent for today), write the file yourself from the agent's handoff content using the Write tool at `docs/<category>/YYYY-MM-DD-{topic}.md`
-- Confirm the complexity assessment (SIMPLE vs COMPLEX) matches your read of the task
-- Upgrade `build` → `forge` if the findings reveal more scope than expected
+- Verify the files it mentions actually exist (spot-check 1-2 paths).
+- **Check that a findings file was written to the agent's category folder** — use Glob (e.g. `docs/security/*.md` for kirei-security, `docs/perf/*.md` for kirei-perf — see the table above). If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent for today), write the file yourself from the agent's handoff content using the Write tool at `docs/<category>/YYYY-MM-DD-{topic}.md`.
+- Confirm the complexity assessment (SIMPLE vs COMPLEX) matches your read of the task.
+- Upgrade `build` → `forge` if the findings reveal more scope than expected.
+
+**If the agent returned no handoff at all** (errored out, hit a tool failure, ran out of budget): tell the user what happened in one sentence, point to anything partial the agent did write, and offer to retry with narrower scope or escalate to `/kirei-chain` for a different angle. Do **not** fabricate a handoff or proceed silently to Step 6.
 
 ## 6. SPAWN THE EXECUTE AGENT
 
@@ -167,9 +171,9 @@ For `kirei-debug`: confirm the **regression test** was added and the **instrumen
 
 ## PARALLELIZING MULTIPLE ANGLES
 
-If the task naturally splits into 2+ independent investigations (e.g., "audit security AND check performance AND map architecture"), suggest the user run **`/kirei-chain`** instead — it's purpose-built for parallel multi-lens research and produces a merged report.
+If the task naturally splits into 2+ independent investigations (e.g., "audit security AND check performance AND map architecture"), recommend **`/kirei-chain`** instead — it's purpose-built for parallel multi-lens research and produces a merged report. Don't shoehorn multi-angle work through `/kirei`; the merge logic and conflict-surfacing live in `/kirei-chain` for a reason.
 
-If the user insists on doing it from `/kirei`, you may spawn multiple research agents in parallel in a single message, then spawn execute agents once both complete (only if `--research-only` is not set).
+If the user explicitly insists on doing it from `/kirei`, you may spawn multiple research agents in parallel in a single message, then spawn execute agents once all complete (only if `--research-only` is not set). But surface the recommendation first.
 
 ## RESEARCH-ONLY MODE
 

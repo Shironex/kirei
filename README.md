@@ -21,6 +21,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `kirei-review` | opus | `docs/review/` | Code review of pending changes or a GitHub PR; can also classify reviewer comments (`--address-pr-comments`) |
 | `kirei-debug` | opus | `docs/debug/` | Reproduce + root-cause a specific bug; may add tracked temp instrumentation |
 | `kirei-data` | opus | `docs/data/` | Schema / migration safety / query / index audit |
+| `kirei-deps` | opus | `docs/deps/` | Dependency safety: package-manager audit + Dependabot alerts + safe-bump list + ordered upgrade plan (depth-tunable) |
 | `/kirei-chain` (skill) | — | `docs/chain/` | Combined report from a multi-lens parallel run |
 
 ### Execute agents (implement findings)
@@ -36,6 +37,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 |---|---|
 | `/kirei [task]` | Single-lens orchestrator — auto-detects type and complexity, spawns the right research agent, then the right execute agent. |
 | `/kirei-chain [task]` | Multi-lens orchestrator — runs up to 4 research agents in parallel against the same target and merges their findings into one report. Research-only by design. |
+| `/kirei-deps` | Dependency-safety orchestrator — asks for depth (quick / standard / deep) at invoke time, runs `kirei-deps`, optionally hands safe bumps to `kirei-build` and recommends `/kirei migrate` for risky majors. |
 
 ### `/kirei` flags
 
@@ -51,6 +53,16 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | Flag | Effect |
 |---|---|
 | `--types <a,b,c>` | Pin the lens set explicitly (otherwise auto-detected). Valid: `security, ui, refactor, perf, arch, test, data, general`. Capped at 4. |
+
+### `/kirei-deps` flags
+
+| Flag | Effect |
+|---|---|
+| `--quick` / `--standard` / `--deep` | Skip the depth question. `quick` = audit only. `standard` = + Dependabot + safe-bumps. `deep` = + outdated map + ordered upgrade plan. |
+| `--research-only` | Skip the kirei-build hand-off for safe bumps. Report only. |
+| `--no-dependabot` | Skip Dependabot fetching even at standard/deep (e.g., private repo, no alert access). |
+| `--manager <pm>` | Override package-manager detection. Valid: `pnpm, npm, yarn, bun, poetry, uv, pip, cargo, go, bundler`. |
+| `--scope <path>` | Run audit only in a sub-directory (useful in monorepos). |
 
 ## How it works
 

@@ -32,7 +32,16 @@ If `--types` is **not** provided, **auto-detect** by scanning the task for trigg
 | `data` | schema, migration, query, index, ORM, FK, table, integrity |
 | `general` | (fallback for one of the slots if the question is broad) |
 
-Cap at **4 lenses** maximum. If more match, tell the user which 4 you picked and why; offer to swap.
+**Not lenses** — `migrate`, `debug`, `review`, and `deps` are single-purpose research flows, not multi-angle audits. If the user's prompt is really about "upgrade pkg X" or "find why test Y fails" or "review PR #123" or "audit our dependencies", recommend `/kirei` (or `/kirei-deps`) instead — chain mode adds noise without adding insight.
+
+Cap at **4 lenses** maximum. When more than 4 match, drop in this priority order (drop earliest first):
+
+1. `general` — almost always redundant when 2+ specific lenses match
+2. `ui` — usually orthogonal to security/perf/data; survives only if explicitly raised
+3. `refactor` — overlaps with `arch` for structural concerns
+4. `test` — coverage is rarely the most urgent angle in a multi-lens audit
+
+`security`, `data`, `perf`, and `arch` survive ties by default. Tell the user which 4 you picked and why; offer to swap.
 
 ---
 
@@ -91,7 +100,7 @@ If `kirei-arch` is one of the lenses, note that it's advisory only — that's fi
 When all parallel agents complete:
 
 - For each one, read its KIREI HANDOFF block.
-- Verify each agent wrote a findings file. Glob the lens-specific folder filtered by today's date (e.g. `docs/security/2026-*.md` for the security lens). If any agent printed `FINDINGS FILE NOT WRITTEN`, write that one yourself from its handoff content using the Write tool to the correct category folder.
+- Verify each agent wrote a findings file. Glob the lens-specific folder filtered by today's date (e.g. `docs/security/YYYY-*.md` where YYYY is the current year). If any agent printed `FINDINGS FILE NOT WRITTEN`, write that one yourself from its handoff content using the Write tool to the correct category folder.
 - Spot-check 1-2 file paths each agent referenced — make sure they exist.
 
 If any agent failed entirely (errored out, no handoff), report that to the user before merging. Do not silently drop a lens.
