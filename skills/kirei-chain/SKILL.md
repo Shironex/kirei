@@ -1,6 +1,6 @@
 ---
 name: kirei-chain
-description: Run multiple kirei research agents in parallel against the same target and merge their findings into one combined report. Use when a question needs more than one lens (e.g., "audit this module for security AND performance AND architecture"). Invoke with /kirei-chain followed by a task description; optionally pass --types security,perf,arch to pin the lens set.
+description: Run multiple kirei research agents in parallel against the same target and merge their findings into one combined report. Use when a question needs more than one lens (e.g., "audit this module for security AND performance AND architecture", or "audit observability AND error handling together"). Invoke with /kirei-chain followed by a task description; optionally pass --types security,perf,arch to pin the lens set. Valid lenses: security, ui, refactor, perf, arch, test, data, observability, bundle, error, general.
 ---
 
 You have been invoked via `/kirei-chain`. Follow this workflow precisely.
@@ -16,7 +16,7 @@ You do **not** spawn execute agents. The user (or a follow-up `/kirei`) decides 
 Extract from the user's prompt:
 
 - **Task description** — the actual thing to investigate (everything that isn't a flag).
-- **`--types <comma-list>`** — optional explicit lens set. Valid values: `security`, `ui`, `refactor`, `perf`, `arch`, `test`, `data`, `general`.
+- **`--types <comma-list>`** — optional explicit lens set. Valid values: `security`, `ui`, `refactor`, `perf`, `arch`, `test`, `data`, `observability`, `bundle`, `error`, `general`.
 - **`--research-only`** — accepted and implied (this skill is research-only by definition).
 
 If `--types` is **not** provided, **auto-detect** by scanning the task for trigger keywords from the table below. Pick **all** that match (this skill is for multi-lens questions). If only one lens matches, tell the user that `/kirei` is the better tool and ask whether to continue anyway.
@@ -30,9 +30,12 @@ If `--types` is **not** provided, **auto-detect** by scanning the task for trigg
 | `arch` | architecture, structure, dependencies, coupling, module boundaries, system design |
 | `test` | tests, coverage, untested, flaky, edge cases, regression |
 | `data` | schema, migration, query, index, ORM, FK, table, integrity |
+| `observability` | logging, metrics, tracing, telemetry, PII in logs, log levels, correlation id |
+| `bundle` | bundle size, code splitting, lazy load, tree-shake, vendor chunk, gzipped size |
+| `error` | error handling, swallowed catch, generic Error, error contract, no timeouts, unhandled rejection |
 | `general` | (fallback for one of the slots if the question is broad) |
 
-**Not lenses** — `migrate`, `debug`, `review`, and `deps` are single-purpose research flows, not multi-angle audits. If the user's prompt is really about "upgrade pkg X" or "find why test Y fails" or "review PR #123" or "audit our dependencies", recommend `/kirei` (or `/kirei-deps`) instead — chain mode adds noise without adding insight.
+**Not lenses** — `migrate`, `debug`, `review`, `deps`, `license`, and `eval` are single-purpose research flows, not multi-angle audits. If the user's prompt is really about "upgrade pkg X" or "find why test Y fails" or "review PR #123" or "audit our dependencies" or "license compatibility" or "audit our eval suite", recommend `/kirei` (or `/kirei-deps`) instead — chain mode adds noise without adding insight.
 
 Cap at **4 lenses** maximum. When more than 4 match, drop in this priority order (drop earliest first):
 
@@ -68,6 +71,9 @@ For each lens, pick the agent:
 | `arch` | `kirei-arch` |
 | `test` | `kirei-test` |
 | `data` | `kirei-data` |
+| `observability` | `kirei-observability` |
+| `bundle` | `kirei-bundle` |
+| `error` | `kirei-error` |
 | `general` | `kirei` |
 
 Each agent writes its findings to its own category folder (e.g. `docs/security/`, `docs/perf/`, `docs/arch/` — see the per-agent prompts).

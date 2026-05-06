@@ -22,7 +22,13 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `kirei-debug` | opus | `docs/debug/` | Reproduce + root-cause a specific bug; may add tracked temp instrumentation |
 | `kirei-data` | opus | `docs/data/` | Schema / migration safety / query / index audit |
 | `kirei-deps` | opus | `docs/deps/` | Dependency safety: package-manager audit + Dependabot alerts + safe-bump list + ordered upgrade plan (depth-tunable) |
+| `kirei-observability` | opus | `docs/observability/` | Logs, metrics, traces audit — coverage gaps, structure, PII safety, correlation, mis-leveled logs |
+| `kirei-bundle` | opus | `docs/bundle/` | Shipped-bytes deep dive — composition, duplicates, missing splits, asset weight, with KB savings |
+| `kirei-license` | opus | `docs/license/` | Dependency license compatibility, copyleft contagion, NOTICE/attribution gaps |
+| `kirei-error` | opus | `docs/error/` | Error handling audit — swallowed catches, error taxonomy, boundary leaks, missing timeouts/retries, async hazards |
+| `kirei-eval` | opus | `docs/eval/` | Evaluation infrastructure audit — eval suites, baselines, golden datasets, regression detection, CI integration |
 | `/kirei-chain` (skill) | — | `docs/chain/` | Combined report from a multi-lens parallel run |
+| `/kirei-discuss` (skill) | — | `docs/discuss/` | Conversational pros/cons audit of an idea/feature/project before any code is written |
 
 ### Execute agents (implement findings)
 
@@ -38,6 +44,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `/kirei [task]` | Single-lens orchestrator — auto-detects type and complexity, spawns the right research agent, then the right execute agent. |
 | `/kirei-chain [task]` | Multi-lens orchestrator — runs up to 4 research agents in parallel against the same target and merges their findings into one report. Research-only by design. |
 | `/kirei-deps` | Dependency-safety orchestrator — asks for depth (quick / standard / deep) at invoke time, runs `kirei-deps`, optionally hands safe bumps to `kirei-build` and recommends `/kirei migrate` for risky majors. |
+| `/kirei-discuss [idea]` | Conversational pros/cons audit before any code — walks problem framing, value, cost, risks, alternatives, reversibility, and a clear next-step recommendation (build / spike / wait / don't-build). Writes a decision doc to `docs/discuss/`. |
 
 ### `/kirei` flags
 
@@ -52,7 +59,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 
 | Flag | Effect |
 |---|---|
-| `--types <a,b,c>` | Pin the lens set explicitly (otherwise auto-detected). Valid: `security, ui, refactor, perf, arch, test, data, general`. Capped at 4. |
+| `--types <a,b,c>` | Pin the lens set explicitly (otherwise auto-detected). Valid: `security, ui, refactor, perf, arch, test, data, observability, bundle, error, general`. Capped at 4. |
 
 ### `/kirei-deps` flags
 
@@ -83,6 +90,11 @@ flowchart TD
     detect -->|review| rev[kirei-review\nopus · cyan]
     detect -->|debug| dbg[kirei-debug\nopus · red]
     detect -->|data| data[kirei-data\nopus · blue]
+    detect -->|observability| obs[kirei-observability\nopus · cyan]
+    detect -->|bundle| bun[kirei-bundle\nopus · yellow]
+    detect -->|license| lic[kirei-license\nopus · yellow]
+    detect -->|error| err[kirei-error\nopus · red]
+    detect -->|eval| ev[kirei-eval\nopus · green]
 
     kirei --> findings
     sec --> findings
@@ -95,6 +107,11 @@ flowchart TD
     rev --> findings
     dbg --> findings
     data --> findings
+    obs --> findings
+    bun --> findings
+    lic --> findings
+    err --> findings
+    ev --> findings
 
     findings([docs/&lt;category&gt;/\nYYYY-MM-DD-slug.md])
 
@@ -193,6 +210,6 @@ Manual install: pull latest and re-run the copy commands.
 
 - **Ref MCP for docs** — agents use `mcp__Ref__ref_*` for library documentation; falls back to WebSearch if unavailable. context7 is not used.
 - **AskUserQuestion after investigation** — findings are validated with the user once analysis is complete, not before. Prevents scope conversations from slowing down clear tasks.
-- **Findings persistence, organised by domain** — every investigation writes to `docs/<category>/YYYY-MM-DD-<slug>.md` in the target repo (one folder per agent: `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, `docs/chain/`, plus `docs/research/` for the general agent). Findings survive across sessions and stay sorted instead of piling up in one folder.
+- **Findings persistence, organised by domain** — every investigation writes to `docs/<category>/YYYY-MM-DD-<slug>.md` in the target repo (one folder per agent: `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, `docs/observability/`, `docs/bundle/`, `docs/license/`, `docs/error/`, `docs/eval/`, `docs/chain/`, `docs/discuss/`, plus `docs/research/` for the general agent). Findings survive across sessions and stay sorted instead of piling up in one folder.
 - **Two execute tiers** — kirei-build (sonnet) for focused changes, kirei-forge (opus) for complex multi-file work. Research agent recommends which; orchestrator skill decides.
 - **Omniscribe integration** — all agents update omniscribe_status and omniscribe_tasks throughout so the UI stays in sync.

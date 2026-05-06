@@ -1,6 +1,6 @@
 ---
 name: kirei
-description: Orchestrate research + execution for any engineering task. Auto-detects task type (security, ui, refactor, perf, arch, test, migrate, review, debug, data, or general) and execute complexity (build vs forge), then spawns the right specialist research agent followed by the right execute agent. Use whenever the user asks to investigate, audit, fix, refactor, debug, optimize, review, or implement anything that benefits from research before code — even if they don't say "kirei". Pass --research-only to skip the execute step. Invoke with /kirei followed by a task description.
+description: Orchestrate research + execution for any engineering task. Auto-detects task type (security, ui, refactor, perf, arch, test, migrate, review, debug, data, observability, bundle, license, error, eval, or general) and execute complexity (build vs forge), then spawns the right specialist research agent followed by the right execute agent. Use whenever the user asks to investigate, audit, fix, refactor, debug, optimize, review, or implement anything that benefits from research before code — even if they don't say "kirei". Pass --research-only to skip the execute step. Invoke with /kirei followed by a task description.
 ---
 
 You have been invoked via `/kirei`. Follow this workflow precisely.
@@ -41,6 +41,11 @@ Otherwise, read the task description and pick the **most specific** match:
 | `review` | review, PR, pull request, code review, address comments, reviewer feedback |
 | `debug` | bug, broken, fails, repro, reproduce, intermittent, root cause, stack trace, error message |
 | `data` | schema, migration safety, query, index, ORM, foreign key, table design, integrity, N+1 |
+| `observability` | logging, log level, structured logs, metrics, tracing, telemetry, OpenTelemetry, Sentry, Datadog, PII in logs, correlation id, log redaction |
+| `bundle` | bundle size, ship size, code splitting, tree shake, lazy load, dynamic import, vendor chunk, gzipped, source-map-explorer, bundle analyzer |
+| `license` | license, LICENSE file, MIT, Apache, GPL, AGPL, copyleft, license compatibility, NOTICE, attribution, OSS compliance |
+| `error` | error handling, swallowed catch, swallowed error, generic Error, error boundary, error type, error taxonomy, unhandled rejection, retry, timeout, error contract |
+| `eval` | eval, evals, evaluation harness, benchmark suite, golden dataset, baseline, regression detection, prompt eval, LLM eval, A/B test infra, snapshot regression |
 | `general` | anything else |
 
 Tie-breakers:
@@ -50,6 +55,12 @@ Tie-breakers:
 - N+1 in DB queries / ORM → `data`. N+1 in API calls, render loops, or non-DB iteration → `perf`.
 - "Audit our deps" / "what's safe to bump" / "check Dependabot" / "run npm/pnpm audit" → recommend `/kirei-deps` (purpose-built for dependency hygiene); only fall back to `security` if the user wants the full codebase audit.
 - "Review my PR" with no `--pr` flag → ask which PR or assume current branch's PR.
+- "Are errors logged?" / "PII in logs" / "missing metrics" → `observability`. "Why is this slow?" → `perf`. The distinction: `observability` is about *whether you can see what's happening*, `perf` is about *what's slow*.
+- "Bundle is too big" / "shipped JS too large" / "code split this" → `bundle`. Use `perf` only if the question is broader than shipped bytes.
+- "Audit our licenses" / "is GPL OK here?" / "missing NOTICE" → `license`. CVE-focused dep questions still go to `/kirei-deps`.
+- "Errors are swallowed" / "no error types" / "catch blocks everywhere" / "no timeouts on fetch" → `error`. A specific failing flow with a repro → `debug` instead.
+- "Are our evals any good?" / "no regression baseline" / "prompt change broke quality" / "we have benchmarks but no baseline" → `eval`. Test coverage of code paths → `test`.
+- "Should we build X?" / "is this idea good?" / "talk me through this" → recommend `/kirei-discuss` instead — that skill is purpose-built for pre-commitment idea audit.
 
 ## 2. DETECT EXECUTE COMPLEXITY
 
@@ -92,6 +103,11 @@ Spawn the appropriate research agent using the Agent tool. The agent has **no se
 | `review` | `kirei-review` | `docs/review/` |
 | `debug` | `kirei-debug` | `docs/debug/` |
 | `data` | `kirei-data` | `docs/data/` |
+| `observability` | `kirei-observability` | `docs/observability/` |
+| `bundle` | `kirei-bundle` | `docs/bundle/` |
+| `license` | `kirei-license` | `docs/license/` |
+| `error` | `kirei-error` | `docs/error/` |
+| `eval` | `kirei-eval` | `docs/eval/` |
 
 **Prompt structure for the research agent:**
 ```
@@ -113,7 +129,7 @@ Run the research agent in the **foreground** (not background) — you need its f
 When the research agent completes, read its KIREI HANDOFF block. Before proceeding:
 
 - Verify the files it mentions actually exist (spot-check 1-2 paths).
-- **Check that a findings file was written to the agent's category folder** — use Glob (e.g. `docs/security/*.md` for kirei-security, `docs/perf/*.md` for kirei-perf — see the table above). If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent for today), write the file yourself from the agent's handoff content using the Write tool at `docs/<category>/YYYY-MM-DD-{topic}.md`.
+- **Check that a findings file was written to the agent's category folder** — use Glob (e.g. `docs/security/*.md` for kirei-security, `docs/perf/*.md` for kirei-perf, `docs/observability/*.md` for kirei-observability, `docs/bundle/*.md` for kirei-bundle, `docs/license/*.md` for kirei-license, `docs/error/*.md` for kirei-error, `docs/eval/*.md` for kirei-eval — see the table above). If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent for today), write the file yourself from the agent's handoff content using the Write tool at `docs/<category>/YYYY-MM-DD-{topic}.md`.
 - Confirm the complexity assessment (SIMPLE vs COMPLEX) matches your read of the task.
 - Upgrade `build` → `forge` if the findings reveal more scope than expected.
 
