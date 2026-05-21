@@ -1,7 +1,7 @@
 {
   "name": "kirei",
-  "version": "1.8.0",
-  "description": "Specialized research + execute agent team for Claude Code. Auto-detects task type (security, UI, refactor, performance, architecture, test, migrate, review, debug, data, deps, observability, bundle, license, error, eval) and complexity. Spawns the right specialist agent to investigate, then the right execute agent to implement. Includes /kirei-chain for parallel multi-lens research, /kirei-deps for dependency-safety audits with Dependabot integration, /kirei-templatize to strip an existing JS/TS repo into a reusable starter template, and /kirei-discuss for conversational pros/cons audit of ideas before any code is written.",
+  "version": "1.9.0",
+  "description": "Specialized research + execute agent team for Claude Code. Auto-detects task type (security, UI, refactor, performance, architecture, test, migrate, review, debug, data, deps, observability, bundle, license, error, eval) and complexity. Spawns the right specialist agent to investigate, then the right execute agent to implement. Includes /kirei-chain for parallel multi-lens research, /kirei-deps for dependency-safety audits with Dependabot integration, /kirei-audit for depth-tunable code-quality audits (code smells, DRY, god files) that scale parallel agents to repo size and offer ordered fixes, /kirei-templatize to strip an existing JS/TS repo into a reusable starter template, and /kirei-discuss for conversational pros/cons audit of ideas before any code is written.",
   "author": {
     "name": "Shironex",
     "email": "support@shirone.dev",
@@ -10,5 +10,5 @@
   "homepage": "https://github.com/Shironex/kirei",
   "repository": "https://github.com/Shironex/kirei",
   "license": "MIT",
-  "keywords": ["agents", "research", "security", "refactoring", "performance", "ui-ux", "architecture", "testing", "migration", "code-review", "debugging", "database", "dependencies", "dependabot", "audit", "cve", "template", "scaffold", "observability", "logging", "telemetry", "bundle-size", "license-compliance", "error-handling", "evals", "ideation"]
+  "keywords": ["agents", "research", "security", "refactoring", "performance", "ui-ux", "architecture", "testing", "migration", "code-review", "debugging", "database", "dependencies", "dependabot", "audit", "cve", "template", "scaffold", "observability", "logging", "telemetry", "bundle-size", "license-compliance", "error-handling", "evals", "ideation", "code-quality", "code-smells", "dry", "god-files", "dead-code", "technical-debt"]
 }

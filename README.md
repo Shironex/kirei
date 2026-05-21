@@ -28,6 +28,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `kirei-error` | opus | `docs/error/` | Error handling audit — swallowed catches, error taxonomy, boundary leaks, missing timeouts/retries, async hazards |
 | `kirei-eval` | opus | `docs/eval/` | Evaluation infrastructure audit — eval suites, baselines, golden datasets, regression detection, CI integration |
 | `/kirei-chain` (skill) | — | `docs/chain/` | Combined report from a multi-lens parallel run |
+| `/kirei-audit` (skill) | — | `docs/audit/` | Code-quality audit — scales parallel `kirei-refactor` agents to repo size, merges into one dependency-ordered cleanup plan, offers ordered fixes |
 | `/kirei-discuss` (skill) | — | `docs/discuss/` | Conversational pros/cons audit of an idea/feature/project before any code is written |
 
 ### Execute agents (implement findings)
@@ -44,6 +45,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `/kirei [task]` | Single-lens orchestrator — auto-detects type and complexity, spawns the right research agent, then the right execute agent. |
 | `/kirei-chain [task]` | Multi-lens orchestrator — runs up to 4 research agents in parallel against the same target and merges their findings into one report. Research-only by design. |
 | `/kirei-deps` | Dependency-safety orchestrator — asks for depth (quick / standard / deep) at invoke time, runs `kirei-deps`, optionally hands safe bumps to `kirei-build` and recommends `/kirei migrate` for risky majors. |
+| `/kirei-audit` | Code-quality orchestrator — asks for depth (quick / standard / deep), scout-sizes parallel `kirei-refactor` agents to the repo (1 → 6), merges findings into one dependency-ordered cleanup plan, then offers to fix the phases in order via `kirei-build` / `kirei-forge`. Audits code smells, DRY violations, god files, dead code, inconsistent conventions, and best-practice gaps. |
 | `/kirei-discuss [idea]` | Conversational pros/cons audit before any code — walks problem framing, value, cost, risks, alternatives, reversibility, and a clear next-step recommendation (build / spike / wait / don't-build). Writes a decision doc to `docs/discuss/`. |
 
 ### `/kirei` flags
@@ -70,6 +72,17 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `--no-dependabot` | Skip Dependabot fetching even at standard/deep (e.g., private repo, no alert access). |
 | `--manager <pm>` | Override package-manager detection. Valid: `pnpm, npm, yarn, bun, poetry, uv, pip, cargo, go, bundler`. |
 | `--scope <path>` | Run audit only in a sub-directory (useful in monorepos). |
+
+### `/kirei-audit` flags
+
+| Flag | Effect |
+|---|---|
+| `--quick` / `--standard` / `--deep` | Skip the depth question. Depth caps the parallel agent budget (1 / 3 / 6); a scout pass sizes the real count to the repo. |
+| `--research-only` | Produce the merged cleanup plan only — skip the ordered fix step. |
+| `--scope <path>` | Audit only a sub-directory / module (useful in monorepos). |
+| `--categories <list>` | Pin taxonomy categories: `dead-code, dup, god-files, abstractions, consistency, best-practices`. Default: all six. |
+| `--max-agents <n>` | Hard cap on parallel workers (never raises above the depth cap). |
+| `--no-scout` | Skip scout sizing; use the depth's full agent budget directly. |
 
 ## How it works
 
@@ -148,6 +161,28 @@ flowchart TD
 
 Use when one question needs more than one perspective. Capped at 4 parallel agents. Research-only by design — the merged report points the user (or a follow-up `/kirei`) to the highest-leverage fixes.
 
+### Code-quality audit (`/kirei-audit`)
+
+```mermaid
+flowchart TD
+    audit(["/kirei-audit"])
+    audit --> depth{ask depth\nquick/standard/deep}
+    depth --> scout[scout pass\nsize repo → agent count]
+    scout -->|1 agent| q[full-spectrum pass]
+    scout -->|≤3 by category| s[dead-code+dup · god-files · consistency]
+    scout -->|≤6 by region| d[one agent per module]
+    q --> merge[merge → ordered plan]
+    s --> merge
+    d --> merge
+    merge --> plan([docs/audit/\nYYYY-MM-DD-slug.md])
+    plan --> fix{fix in order?}
+    fix -->|yes, sequential| exec[kirei-build / kirei-forge\nphase by phase, verify between]
+    fix -->|--research-only| done([plan only])
+    exec --> done2([cleanup applied\n+ verified])
+```
+
+Depth **caps** the parallel agent budget (1 / 3 / 6); a scout pass **sizes** the real count to the repo. Audit runs in parallel; fixing runs **sequentially**, phase by phase in dependency order (dead code → extractions → consolidations → conventions → god-file splits → best-practice fixes), verifying typecheck/tests between each.
+
 ### PR comment workflow (`kirei-review --address-pr-comments`)
 
 ```mermaid
@@ -210,6 +245,6 @@ Manual install: pull latest and re-run the copy commands.
 
 - **Ref MCP for docs** — agents use `mcp__Ref__ref_*` for library documentation; falls back to WebSearch if unavailable. context7 is not used.
 - **AskUserQuestion after investigation** — findings are validated with the user once analysis is complete, not before. Prevents scope conversations from slowing down clear tasks.
-- **Findings persistence, organised by domain** — every investigation writes to `docs/<category>/YYYY-MM-DD-<slug>.md` in the target repo (one folder per agent: `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, `docs/observability/`, `docs/bundle/`, `docs/license/`, `docs/error/`, `docs/eval/`, `docs/chain/`, `docs/discuss/`, plus `docs/research/` for the general agent). Findings survive across sessions and stay sorted instead of piling up in one folder.
+- **Findings persistence, organised by domain** — every investigation writes to `docs/<category>/YYYY-MM-DD-<slug>.md` in the target repo (one folder per agent: `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, `docs/observability/`, `docs/bundle/`, `docs/license/`, `docs/error/`, `docs/eval/`, `docs/chain/`, `docs/audit/`, `docs/discuss/`, plus `docs/research/` for the general agent). Findings survive across sessions and stay sorted instead of piling up in one folder.
 - **Two execute tiers** — kirei-build (sonnet) for focused changes, kirei-forge (opus) for complex multi-file work. Research agent recommends which; orchestrator skill decides.
 - **Omniscribe integration** — all agents update omniscribe_status and omniscribe_tasks throughout so the UI stays in sync.
