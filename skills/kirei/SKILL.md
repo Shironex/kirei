@@ -56,6 +56,7 @@ Tie-breakers:
 - "Audit our deps" / "what's safe to bump" / "check Dependabot" / "run npm/pnpm audit" → recommend `/kirei-deps` (purpose-built for dependency hygiene); only fall back to `security` if the user wants the full codebase audit.
 - "Review my PR" with no `--pr` flag → ask which PR or assume current branch's PR.
 - "Are errors logged?" / "PII in logs" / "missing metrics" → `observability`. "Why is this slow?" → `perf`. The distinction: `observability` is about *whether you can see what's happening*, `perf` is about *what's slow*.
+- "Set up Sentry" / "add error tracking" / "wire crash reporting" / "add production monitoring" (greenfield *setup*) → recommend `/kirei-sentry` (purpose-built: framework-aware, consent-gated, CI source maps). `observability` is for *auditing existing* telemetry, not standing up Sentry from scratch.
 - "Bundle is too big" / "shipped JS too large" / "code split this" → `bundle`. Use `perf` only if the question is broader than shipped bytes.
 - "Audit our licenses" / "is GPL OK here?" / "missing NOTICE" → `license`. CVE-focused dep questions still go to `/kirei-deps`.
 - "Errors are swallowed" / "no error types" / "catch blocks everywhere" / "no timeouts on fetch" → `error`. A specific failing flow with a repro → `debug` instead.

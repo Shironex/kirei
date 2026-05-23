@@ -27,6 +27,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `kirei-license` | opus | `docs/license/` | Dependency license compatibility, copyleft contagion, NOTICE/attribution gaps |
 | `kirei-error` | opus | `docs/error/` | Error handling audit — swallowed catches, error taxonomy, boundary leaks, missing timeouts/retries, async hazards |
 | `kirei-eval` | opus | `docs/eval/` | Evaluation infrastructure audit — eval suites, baselines, golden datasets, regression detection, CI integration |
+| `kirei-sentry` | opus | `docs/sentry/` | Production-ready Sentry setup — framework-aware (Electron/Next/Vite/Node/RN), consent gating, recursive PII scrubbing, CI-only source maps, region handling, secret wiring |
 | `/kirei-chain` (skill) | — | `docs/chain/` | Combined report from a multi-lens parallel run |
 | `/kirei-audit` (skill) | — | `docs/audit/` | Code-quality audit — scales parallel `kirei-refactor` agents to repo size, merges into one dependency-ordered cleanup plan, offers ordered fixes |
 | `/kirei-discuss` (skill) | — | `docs/discuss/` | Conversational pros/cons audit of an idea/feature/project before any code is written |
@@ -47,6 +48,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `/kirei-deps` | Dependency-safety orchestrator — asks for depth (quick / standard / deep) at invoke time, runs `kirei-deps`, optionally hands safe bumps to `kirei-build` and recommends `/kirei migrate` for risky majors. |
 | `/kirei-audit` | Code-quality orchestrator — asks for depth (quick / standard / deep), scout-sizes parallel `kirei-refactor` agents to the repo (1 → 6), merges findings into one dependency-ordered cleanup plan, then offers to fix the phases in order via `kirei-build` / `kirei-forge`. Audits code smells, DRY violations, god files, dead code, inconsistent conventions, and best-practice gaps. |
 | `/kirei-discuss [idea]` | Conversational pros/cons audit before any code — walks problem framing, value, cost, risks, alternatives, reversibility, and a clear next-step recommendation (build / spike / wait / don't-build). Writes a decision doc to `docs/discuss/`. |
+| `/kirei-sentry` | Sentry setup orchestrator — asks the consent model + scope + region, runs `kirei-sentry` to design a framework-specific integration (consent-gated, PII-scrubbed, CI source maps), then `kirei-forge` to implement it. Verifies the current SDK API via Ref first. |
 
 ### `/kirei` flags
 
