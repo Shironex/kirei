@@ -150,7 +150,7 @@ After all phases complete, run in `$TARGET` (do **not** run `pnpm dev` / `npm ru
 4. `build` script if present (most important — proves template still compiles)
 5. `test` script if present and fast (skip if it requires services)
 
-Report each result. If anything fails, spawn a focused fix agent (kirei-build) with the failure log; do not paper over with try/catch or skipped checks.
+Report each result. If anything fails, spawn a focused fix agent (kirei-stitch) with the failure log; do not paper over with try/catch or skipped checks.
 
 ---
 

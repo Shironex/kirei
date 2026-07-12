@@ -1,6 +1,6 @@
 ---
 name: kirei
-description: Orchestrate research + execution for any engineering task. Auto-detects task type (security, ui, refactor, perf, arch, test, migrate, review, debug, data, observability, bundle, license, error, eval, or general) and execute complexity (build vs forge), then spawns the right specialist research agent followed by the right execute agent. Use whenever the user asks to investigate, audit, fix, refactor, debug, optimize, review, or implement anything that benefits from research before code — even if they don't say "kirei". Pass --research-only to skip the execute step. Invoke with /kirei followed by a task description.
+description: Orchestrate research + execution for any engineering task. Auto-detects task type (security, ui, refactor, perf, arch, test, migrate, review, debug, data, observability, bundle, license, error, eval, or general) and execute complexity (stitch vs loom), then spawns the right specialist research agent followed by the right execute agent. Use whenever the user asks to investigate, audit, fix, refactor, debug, optimize, review, or implement anything that benefits from research before code — even if they don't say "kirei". Pass --research-only to skip the execute step. Invoke with /kirei followed by a task description.
 ---
 
 You have been invoked via `/kirei`. Follow this workflow precisely.
@@ -67,10 +67,10 @@ Tie-breakers:
 
 Pick one — this determines which execute agent runs after research:
 
-- **`build`** (sonnet) — single or few files, clear bug fix, small feature, obvious scope, straightforward implementation
-- **`forge`** (opus) — multi-file changes, architectural decision, new feature, unclear scope, ordering matters
+- **`stitch`** (sonnet) — single or few files, clear bug fix, small feature, obvious scope, straightforward implementation
+- **`loom`** (opus) — multi-file changes, architectural decision, new feature, unclear scope, ordering matters
 
-When in doubt between build and forge, pick forge.
+When in doubt between stitch and loom, pick loom.
 
 Skip this step entirely if `--research-only` was passed, or the type is `arch` (advisory only).
 
@@ -78,12 +78,12 @@ Skip this step entirely if `--research-only` was passed, or the type is `arch` (
 
 Tell the user in one line what you're spawning:
 
-> "Running **kirei-{type}** to investigate → **kirei-{build|forge}** to implement."
+> "Running **kirei-{type}** to investigate → **kirei-{stitch|loom}** to implement."
 
 Variants:
 - `--research-only`: "Running **kirei-{type}** to investigate (research only — no implementation)."
 - `arch`: "Running **kirei-arch** — produces a report and diagram, no code changes."
-- `--findings <path>`: "Skipping research — using provided findings at `<path>` → **kirei-{build|forge}** to implement."
+- `--findings <path>`: "Skipping research — using provided findings at `<path>` → **kirei-{stitch|loom}** to implement."
 
 ## 4. SPAWN THE RESEARCH AGENT
 
@@ -93,7 +93,7 @@ Spawn the appropriate research agent using the Agent tool. The agent has **no se
 
 | Task type | Agent to spawn | Findings folder |
 |-----------|---------------|-----------------|
-| `general` | `kirei` | `docs/research/` |
+| `general` | `kirei-research` | `docs/research/` |
 | `security` | `kirei-security` | `docs/security/` |
 | `ui` | `kirei-ui` | `docs/ui/` |
 | `refactor` | `kirei-refactor` | `docs/refactor/` |
@@ -107,7 +107,7 @@ Spawn the appropriate research agent using the Agent tool. The agent has **no se
 | `observability` | `kirei-observability` | `docs/observability/` |
 | `bundle` | `kirei-bundle` | `docs/bundle/` |
 | `license` | `kirei-license` | `docs/license/` |
-| `error` | `kirei-error` | `docs/error/` |
+| `error` | `kirei-resilience` | `docs/error/` |
 | `eval` | `kirei-eval` | `docs/eval/` |
 
 **Prompt structure for the research agent:**
@@ -130,11 +130,11 @@ Run the research agent in the **foreground** (not background) — you need its f
 When the research agent completes, read its KIREI HANDOFF block. Before proceeding:
 
 - Verify the files it mentions actually exist (spot-check 1-2 paths).
-- **Check that a findings file was written to the agent's category folder** — use Glob (e.g. `docs/security/*.md` for kirei-security, `docs/perf/*.md` for kirei-perf, `docs/observability/*.md` for kirei-observability, `docs/bundle/*.md` for kirei-bundle, `docs/license/*.md` for kirei-license, `docs/error/*.md` for kirei-error, `docs/eval/*.md` for kirei-eval — see the table above). If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent for today), write the file yourself from the agent's handoff content using the Write tool at `docs/<category>/YYYY-MM-DD-{topic}.md`.
+- **Check that a findings file was written to the agent's category folder** — use Glob (e.g. `docs/security/*.md` for kirei-security, `docs/perf/*.md` for kirei-perf, `docs/observability/*.md` for kirei-observability, `docs/bundle/*.md` for kirei-bundle, `docs/license/*.md` for kirei-license, `docs/error/*.md` for kirei-resilience, `docs/eval/*.md` for kirei-eval — see the table above). If the agent failed to write it (look for `FINDINGS FILE NOT WRITTEN` in its summary, or if Glob returns nothing recent for today), write the file yourself from the agent's handoff content using the Write tool at `docs/<category>/YYYY-MM-DD-{topic}.md`.
 - Confirm the complexity assessment (SIMPLE vs COMPLEX) matches your read of the task.
-- Upgrade `build` → `forge` if the findings reveal more scope than expected.
+- Upgrade `stitch` → `loom` if the findings reveal more scope than expected.
 
-**If the agent returned no handoff at all** (errored out, hit a tool failure, ran out of budget): tell the user what happened in one sentence, point to anything partial the agent did write, and offer to retry with narrower scope or escalate to `/kirei-chain` for a different angle. Do **not** fabricate a handoff or proceed silently to Step 6.
+**If the agent returned no handoff at all** (errored out, hit a tool failure, ran out of budget): tell the user what happened in one sentence, point to anything partial the agent did write, and offer to retry with narrower scope or escalate to `/kirei-prism` for a different angle. Do **not** fabricate a handoff or proceed silently to Step 6.
 
 ## 6. SPAWN THE EXECUTE AGENT
 
@@ -147,8 +147,8 @@ Spawn the appropriate execute agent:
 
 | Complexity | Agent |
 |-----------|-------|
-| `build` | `kirei-build` |
-| `forge` | `kirei-forge` |
+| `stitch` | `kirei-stitch` |
+| `loom` | `kirei-loom` |
 
 **Prompt structure for the execute agent:**
 ```
@@ -188,7 +188,7 @@ For `kirei-debug`: confirm the **regression test** was added and the **instrumen
 
 ## PARALLELIZING MULTIPLE ANGLES
 
-If the task naturally splits into 2+ independent investigations (e.g., "audit security AND check performance AND map architecture"), recommend **`/kirei-chain`** instead — it's purpose-built for parallel multi-lens research and produces a merged report. Don't shoehorn multi-angle work through `/kirei`; the merge logic and conflict-surfacing live in `/kirei-chain` for a reason.
+If the task naturally splits into 2+ independent investigations (e.g., "audit security AND check performance AND map architecture"), recommend **`/kirei-prism`** instead — it's purpose-built for parallel multi-lens research and produces a merged report. Don't shoehorn multi-angle work through `/kirei`; the merge logic and conflict-surfacing live in `/kirei-prism` for a reason.
 
 If the user explicitly insists on doing it from `/kirei`, you may spawn multiple research agents in parallel in a single message, then spawn execute agents once all complete (only if `--research-only` is not set). But surface the recommendation first.
 

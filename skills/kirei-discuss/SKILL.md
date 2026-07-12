@@ -206,7 +206,7 @@ If `--for-handoff` was passed, also append a KIREI HANDOFF block at the end so `
 [The exact thin-slice or full scope to hand to /kirei]
 
 **Suggested kirei type:** [security / ui / refactor / perf / arch / test / data / general]
-**Suggested complexity:** [build / forge]
+**Suggested complexity:** [stitch / loom]
 
 **Open questions to resolve in research phase:**
 - ...

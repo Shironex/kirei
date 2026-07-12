@@ -5,7 +5,7 @@ description: Audit a project's dependencies for safety. Detects the package mana
 
 You have been invoked via `/kirei-deps`. Follow this workflow precisely.
 
-You orchestrate a single research agent (`kirei-deps`) that audits the dependency tree at one of three **depth levels**. The user picks the depth at invocation time via AskUserQuestion. Once findings are in hand, you optionally hand off safe bumps to `kirei-build`, and recommend `/kirei migrate` for any risky majors.
+You orchestrate a single research agent (`kirei-deps`) that audits the dependency tree at one of three **depth levels**. The user picks the depth at invocation time via AskUserQuestion. Once findings are in hand, you optionally hand off safe bumps to `kirei-stitch`, and recommend `/kirei migrate` for any risky majors.
 
 You do **not** modify dependencies yourself. The agent reports; the user decides what runs next.
 
@@ -110,9 +110,9 @@ Skip this step if **any** of the following is true:
 - `--research-only` was passed.
 - The user asked for `quick` depth (no safe-bump list was produced).
 - The handoff says zero safe bumps were found.
-- The handoff lists ONLY risky majors (those go to `/kirei migrate`, not `kirei-build`).
+- The handoff lists ONLY risky majors (those go to `/kirei migrate`, not `kirei-stitch`).
 
-Otherwise, spawn `kirei-build` to apply Phase 1 safe bumps as a single PR:
+Otherwise, spawn `kirei-stitch` to apply Phase 1 safe bumps as a single PR:
 
 **Prompt structure:**
 
@@ -157,7 +157,7 @@ Each becomes its own investigation. Bundling them is exactly the kind of silent 
 One short paragraph:
 
 - What depth ran, what was found in one sentence (e.g., "Standard audit on the pnpm workspace: 3 critical, 7 high CVEs, 12 packages safe to bump").
-- What was changed, if anything (Phase 1 results from kirei-build) — or "research only, no code changes" if applicable.
+- What was changed, if anything (Phase 1 results from kirei-stitch) — or "research only, no code changes" if applicable.
 - Recommended next moves: any `/kirei migrate <pkg>` runs to queue up.
 - Pointer to `docs/deps/[filename]` for the full report.
 
@@ -166,7 +166,7 @@ One short paragraph:
 ## RULES
 
 1. **Always ask depth unless flagged.** Quick, Standard, Deep are not interchangeable — running Deep when the user wanted Quick wastes minutes; running Quick when they wanted Deep produces a useless snapshot.
-2. **Never bundle risky majors into kirei-build.** Each major is its own migration with its own handoff. Step 6 enforces this.
-3. **Never push commits or open PRs from this skill.** kirei-build commits locally; the user pushes.
+2. **Never bundle risky majors into kirei-stitch.** Each major is its own migration with its own handoff. Step 6 enforces this.
+3. **Never push commits or open PRs from this skill.** kirei-stitch commits locally; the user pushes.
 4. **Tolerate Dependabot unavailability.** If `gh` isn't authed or the repo is private without alert access, the agent reports that gap and continues — it doesn't error out.
 5. **Phase 1 is the whole point of standard depth.** If you skip Step 5 because the user said `--research-only`, make sure the recommended next command is clear in your report.

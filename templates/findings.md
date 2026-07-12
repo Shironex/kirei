@@ -1,7 +1,7 @@
 # Research: {Topic}
 
 **Date:** YYYY-MM-DD
-**Agent:** kirei | kirei-security | kirei-ui | kirei-refactor | kirei-perf | kirei-arch
+**Agent:** kirei-research | kirei-security | kirei-ui | kirei-refactor | kirei-perf | kirei-stitch | kirei-loom | (any kirei-* agent)
 **Status:** complete
 
 ## Problem

@@ -1,13 +1,13 @@
 ---
 name: kirei-sentry
-description: Set up production-ready Sentry error + performance monitoring for a project. Detects the framework (Electron, Next.js, Vite/React SPA, Node/Nest, React Native), asks the consent + scope + region decisions, verifies the current SDK API via Ref, then spawns the kirei-sentry agent to produce a framework-specific plan and kirei-forge to implement it — with consent gating, recursive PII scrubbing, CI-only source-map upload, region handling, and the exact CI secrets. Use whenever a user wants to add Sentry, set up error tracking / crash reporting, wire production monitoring, add performance tracing, or integrate Sentry into a new or existing project — even if they don't say "kirei". Invoke with /kirei-sentry; the skill asks the key decisions before working.
+description: Set up production-ready Sentry error + performance monitoring for a project. Detects the framework (Electron, Next.js, Vite/React SPA, Node/Nest, React Native), asks the consent + scope + region decisions, verifies the current SDK API via Ref, then spawns the kirei-sentry agent to produce a framework-specific plan and kirei-loom to implement it — with consent gating, recursive PII scrubbing, CI-only source-map upload, region handling, and the exact CI secrets. Use whenever a user wants to add Sentry, set up error tracking / crash reporting, wire production monitoring, add performance tracing, or integrate Sentry into a new or existing project — even if they don't say "kirei". Invoke with /kirei-sentry; the skill asks the key decisions before working.
 ---
 
 You have been invoked via `/kirei-sentry`. Follow this workflow precisely.
 
-You orchestrate the `kirei-sentry` research agent (which designs a **production-ready, privacy-respecting** Sentry integration for the detected framework) and then `kirei-forge` (which implements it). The hard-won lessons — init timing, consent gating, PII scrubbing, source-map region handling, CI secrets — live in the agent; this skill gathers the few decisions only the user can make, then drives the flow.
+You orchestrate the `kirei-sentry` research agent (which designs a **production-ready, privacy-respecting** Sentry integration for the detected framework) and then `kirei-loom` (which implements it). The hard-won lessons — init timing, consent gating, PII scrubbing, source-map region handling, CI secrets — live in the agent; this skill gathers the few decisions only the user can make, then drives the flow.
 
-You do **not** write integration code yourself, and you do **not** touch the user's Sentry dashboard or CI secrets — those are the user's steps. The agent prescribes; kirei-forge implements; the user finishes the SaaS/infra side.
+You do **not** write integration code yourself, and you do **not** touch the user's Sentry dashboard or CI secrets — those are the user's steps. The agent prescribes; kirei-loom implements; the user finishes the SaaS/infra side.
 
 ---
 
@@ -48,7 +48,7 @@ If the user says "just use sensible defaults", proceed with **opt-in/default-OFF
 
 One line:
 
-> "Running **kirei-sentry** to design a [framework] Sentry setup ([consent] · [scope] · [hosting/region]) → **kirei-forge** to implement. Findings to `docs/sentry/`."
+> "Running **kirei-sentry** to design a [framework] Sentry setup ([consent] · [scope] · [hosting/region]) → **kirei-loom** to implement. Findings to `docs/sentry/`."
 
 Variants:
 - `--research-only`: "… (research only — no implementation)."
@@ -92,7 +92,7 @@ When the agent completes, read its KIREI-SENTRY HANDOFF:
 
 - **Confirm a findings file was written** — Glob `docs/sentry/*.md` for today. If missing (look for `FINDINGS FILE NOT WRITTEN`), write it yourself from the handoff via the Write tool at `docs/sentry/YYYY-MM-DD-sentry-setup.md`.
 - Spot-check 1-2 paths the plan references actually exist.
-- Confirm complexity. Electron, multi-process, or any plan touching build config + CI + UI is **COMPLEX → kirei-forge**. Only a trivial single-entry SPA/Node init is `build`.
+- Confirm complexity. Electron, multi-process, or any plan touching build config + CI + UI is **COMPLEX → kirei-loom**. Only a trivial single-entry SPA/Node init is `build`.
 
 If the agent returned no handoff at all (errored / ran out of budget): tell the user in one sentence, point to anything partial, and offer to retry with a narrower scope. Do **not** fabricate a plan.
 
@@ -102,7 +102,7 @@ If the agent returned no handoff at all (errored / ran out of budget): tell the 
 
 Skip if `--research-only` was passed.
 
-Spawn **`kirei-forge`** (or `kirei-build` only if the handoff is genuinely SIMPLE):
+Spawn **`kirei-loom`** (or `kirei-stitch` only if the handoff is genuinely SIMPLE):
 
 **Prompt structure:**
 
@@ -132,7 +132,7 @@ Run in the foreground.
 Summarize:
 
 - Framework + decisions, and what the agent designed (1-2 sentences).
-- What kirei-forge changed (files / branch / commits) — or "research only, no code changes".
+- What kirei-loom changed (files / branch / commits) — or "research only, no code changes".
 - **The manual checklist the user must still do** (pull this from the handoff's out-of-scope section):
   1. Create the Sentry project → copy the **DSN**.
   2. Create an **org auth token** (`org:ci` scope) and set CI secrets: `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_DSN` (+ `SENTRY_URL` for EU/self-hosted). `SENTRY_DSN` is required for production telemetry to initialize at all.
@@ -148,5 +148,5 @@ Summarize:
 2. **Verify the SDK API via Ref.** The agent does this; if it skipped it, send it back. Stale init code is the most common Sentry failure.
 3. **`SENTRY_DSN` is the one secret that gates everything.** Make sure the final report flags that production builds ship dead without it.
 4. **Region is a real footgun.** EU/self-hosted source-map upload 404s against the US default — the plan must set the `url`/`SENTRY_URL`.
-5. **Never push or open PRs from this skill.** kirei-forge commits locally; the user pushes. Never touch the user's Sentry dashboard or secrets — those are the user's hands only.
+5. **Never push or open PRs from this skill.** kirei-loom commits locally; the user pushes. Never touch the user's Sentry dashboard or secrets — those are the user's hands only.
 6. **Privacy is non-negotiable.** `sendDefaultPii: false`, a recursive scrubber with a test, no Session Replay unless explicitly requested. If the plan is missing any of these, fix the plan before implementing.

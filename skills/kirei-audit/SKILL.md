@@ -1,11 +1,11 @@
 ---
 name: kirei-audit
-description: Audit a codebase for quality and maintainability — code smells, DRY violations, god files, dead code, inconsistent conventions, and unfollowed best practices. Depth-tunable like /kirei-deps; a scout pass sizes how many kirei-refactor agents run in parallel (1 → up to 6) to match the repo. Produces one merged, dependency-ordered cleanup plan, then offers to fix the issues in order via kirei-build / kirei-forge. Use whenever a user asks to audit the codebase, find code smells, hunt technical debt, check for DRY violations, find god files or dead code, surface inconsistencies, run a code-quality / health pass, or plan a refactor — even if they don't say "kirei". Invoke with /kirei-audit; the skill asks which depth before working.
+description: Audit a codebase for quality and maintainability — code smells, DRY violations, god files, dead code, inconsistent conventions, and unfollowed best practices. Depth-tunable like /kirei-deps; a scout pass sizes how many kirei-refactor agents run in parallel (1 → up to 6) to match the repo. Produces one merged, dependency-ordered cleanup plan, then offers to fix the issues in order via kirei-stitch / kirei-loom. Use whenever a user asks to audit the codebase, find code smells, hunt technical debt, check for DRY violations, find god files or dead code, surface inconsistencies, run a code-quality / health pass, or plan a refactor — even if they don't say "kirei". Invoke with /kirei-audit; the skill asks which depth before working.
 ---
 
 You have been invoked via `/kirei-audit`. Follow this workflow precisely.
 
-You orchestrate a **code-quality audit**. Depth picks an agent budget; a cheap **scout pass** partitions the in-scope code and spawns only as many `kirei-refactor` agents as the repo actually warrants (1 → up to 6, in parallel). You then **merge** their findings into one dependency-ordered cleanup plan and, unless told otherwise, offer to apply the fixes **in order** via `kirei-build` / `kirei-forge`.
+You orchestrate a **code-quality audit**. Depth picks an agent budget; a cheap **scout pass** partitions the in-scope code and spawns only as many `kirei-refactor` agents as the repo actually warrants (1 → up to 6, in parallel). You then **merge** their findings into one dependency-ordered cleanup plan and, unless told otherwise, offer to apply the fixes **in order** via `kirei-stitch` / `kirei-loom`.
 
 You do **not** write code yourself, and you do **not** run the workers sequentially during research — the audit is parallel; only the *fixing* is sequential. The agents report; the user decides what runs next.
 
@@ -228,9 +228,9 @@ Refactors have dependencies and touch overlapping files — this order avoids br
 |------|-----------|-----|--------|------|
 
 ## Execute Complexity Per Phase
-- Phase 1, 6 → kirei-build (focused, low-risk)
-- Phase 2, 4 → kirei-build unless wide → kirei-forge
-- Phase 3, 5 → kirei-forge (multi-file, ordering matters)
+- Phase 1, 6 → kirei-stitch (focused, low-risk)
+- Phase 2, 4 → kirei-stitch unless wide → kirei-loom
+- Phase 3, 5 → kirei-loom (multi-file, ordering matters)
 
 ## What NOT to Touch
 [Things that look messy but are intentional, generated, vendored, or too risky to refactor now.]
@@ -253,12 +253,12 @@ Then output the handoff block:
 - [Item appearing across slices] — `file:line`
 
 **Ordered phases (run in this order):**
-1. Remove dead code — [count] items — build
-2. Extract shared utilities — [count] — build/forge
-3. Consolidate duplicates — [count] — forge
-4. Normalize conventions — [count] — build/forge
-5. Split god files — [count] — forge
-6. Best-practice fixes — [count] — build
+1. Remove dead code — [count] items — stitch
+2. Extract shared utilities — [count] — stitch/loom
+3. Consolidate duplicates — [count] — loom
+4. Normalize conventions — [count] — stitch/loom
+5. Split god files — [count] — loom
+6. Best-practice fixes — [count] — stitch
 
 **This skill stops here unless you approve fixes (Step 7). Fixing runs sequentially, phase by phase.**
 ---
@@ -279,7 +279,7 @@ multiSelect: false
 
 Options:
 - "Fix all phases in order"
-  description: "Run Phases 1→6 sequentially via kirei-build/kirei-forge. Stop and report if any phase breaks typecheck/tests."
+  description: "Run Phases 1→6 sequentially via kirei-stitch/kirei-loom. Stop and report if any phase breaks typecheck/tests."
 
 - "Fix only safe phases (1–2)"
   description: "Dead-code removal + utility extraction only — lowest risk. Leave consolidation / god-file splits for a later, deliberate pass."
@@ -294,7 +294,7 @@ Options:
 If the user opts to fix, run the chosen phases **sequentially** — one phase per agent, never in parallel:
 
 For each phase in order:
-1. Spawn `kirei-build` (focused/low-risk phases) or `kirei-forge` (multi-file phases per the complexity map) in the **foreground**, with:
+1. Spawn `kirei-stitch` (focused/low-risk phases) or `kirei-loom` (multi-file phases per the complexity map) in the **foreground**, with:
    - the combined plan path,
    - the exact phase's items pasted in,
    - a hard rule: implement ONLY this phase's items; do not start a later phase.
@@ -312,7 +312,7 @@ One short paragraph:
 - One-sentence health read (e.g. "Standard audit, 3 agents by category: 4 god files, 6 DRY clusters, 11 dead exports").
 - What was fixed, if anything (phases run + verification result) — or "research only, no changes."
 - Pointer to `docs/audit/<file>.md` for the full plan.
-- Recommended next move (e.g. run remaining phases later, or `/kirei-deps` / `/kirei-chain` for an adjacent angle).
+- Recommended next move (e.g. run remaining phases later, or `/kirei-deps` / `/kirei-prism` for an adjacent angle).
 
 ---
 
