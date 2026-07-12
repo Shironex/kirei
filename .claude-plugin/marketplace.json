@@ -14,8 +14,8 @@
         "source": "github",
         "repo": "Shironex/kirei"
       },
-      "description": "Specialized research + execute agent team. Auto-detects task type (security, UI, refactor, performance, architecture, test, migrate, review, debug, data, deps, observability, bundle, license, error, eval) and complexity. Spawns the right specialist agent to investigate, then the right execute agent to implement. Includes /kirei-chain for parallel multi-lens research, /kirei-deps for dependency-safety audits with Dependabot integration, /kirei-audit for depth-tunable code-quality audits that scale parallel agents to repo size and offer ordered fixes, /kirei-templatize to strip an existing JS/TS repo into a reusable starter template, /kirei-discuss for conversational pros/cons audit of ideas before any code is written, and /kirei-sentry to set up production-ready, privacy-respecting Sentry error + performance monitoring.",
-      "version": "1.10.0",
+      "description": "Specialized research + execute agent team. /kirei auto-detects task type (security, UI, refactor, performance, architecture, test, migrate, review, debug, data, deps, observability, bundle, license, resilience, eval, or general via kirei-research) and complexity, spawns the right specialist to investigate, then an execute agent — kirei-stitch (focused) or kirei-loom (multi-file) — to implement. Also: /kirei-prism (parallel multi-lens research), /kirei-audit (depth-tunable code-quality audits with ordered fixes), /kirei-deps (Dependabot-aware dependency-safety audits), /kirei-sentry (production Sentry setup), /kirei-templatize (repo to starter template), /kirei-discuss (pre-code idea audit), and /kirei-wave (worktree-parallel multi-slice execute: fan-out builders, run the gate battery, open PRs, gate each with the read-only adversarial kirei-gate reviewer, then merge in dependency order). kirei-resilience audits error handling.",
+      "version": "2.0.0",
       "author": {
         "name": "Shironex",
         "email": "support@shirone.dev"
@@ -23,7 +23,7 @@
       "homepage": "https://github.com/Shironex/kirei",
       "repository": "https://github.com/Shironex/kirei",
       "license": "MIT",
-      "keywords": ["agents", "research", "security", "refactoring", "performance", "ui-ux", "architecture", "testing", "migration", "code-review", "debugging", "database", "dependencies", "dependabot", "audit", "cve", "template", "scaffold", "observability", "bundle-size", "license-compliance", "error-handling", "evals", "ideation", "code-quality", "code-smells", "dry", "god-files", "dead-code", "technical-debt", "sentry", "error-tracking", "crash-reporting", "monitoring", "source-maps"],
+      "keywords": ["agents", "research", "security", "refactoring", "performance", "ui-ux", "architecture", "testing", "migration", "code-review", "debugging", "database", "dependencies", "dependabot", "audit", "cve", "template", "scaffold", "observability", "bundle-size", "license-compliance", "error-handling", "evals", "ideation", "code-quality", "code-smells", "dry", "god-files", "dead-code", "technical-debt", "sentry", "error-tracking", "crash-reporting", "monitoring", "source-maps", "worktree", "parallel-execution", "merge-gate", "adversarial-review", "pull-requests"],
       "category": "development-workflows"
     }
   ]
