@@ -1,0 +1,43 @@
+{
+  "repo": "example/app",
+  "notes": "Shape of a corpus file. Keep the real corpus in the repo whose history it replays (a private project's fixes stay private); point `--corpus` at it and `--repo` at that checkout. `files` limits the ground truth, and for revert cases also limits which files the revert touches. `blame` is a free-text note on how the introducing commit was chosen.",
+  "cases": [
+    {
+      "id": "tenant-scoped-update-escapes-tx",
+      "fix": "0123abcd",
+      "mode": "introducing",
+      "introducing": "4567ef01",
+      "files": ["src/db/tenant-scope.ts"],
+      "invariant": "tenant-scoped writes run inside the caller's transaction",
+      "tags": ["tenancy"],
+      "blame": "62/83 touched lines"
+    },
+    {
+      "id": "oauth-door-skips-removed-member",
+      "fix": "89ab2345",
+      "mode": "introducing",
+      "introducing": "cdef6789",
+      "invariant": "a removed member is refused at every sign-in door",
+      "tags": ["auth", "omission"],
+      "blame": "blame names the door's original author; the defect is the introducing commit's omission of this door, set by hand"
+    },
+    {
+      "id": "status-check-before-parse",
+      "fix": "1a2b3c4d",
+      "mode": "revert",
+      "intent": "refactor(auth): parse the captcha verify response directly",
+      "invariant": "external fetches check response.ok before parsing and fail closed",
+      "tags": ["resilience"]
+    },
+    {
+      "id": "gate-relaxed-coverage-floor",
+      "mode": "patch",
+      "base": "5e6f7a8b",
+      "patch": "plants/lower-coverage-floor.patch",
+      "files": ["package.json"],
+      "intent": "feat(api): add a duration formatter",
+      "invariant": "a diff that relaxes a gate surface says so in its intent",
+      "tags": ["gate-relaxed", "plant"]
+    }
+  ]
+}
