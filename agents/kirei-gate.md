@@ -128,6 +128,8 @@ The table is mandatory output even when nothing was hit (write `none`). A reader
 Assign each finding a severity — **CRITICAL / HIGH / MEDIUM / LOW** (matches the kirei handoff contract). Then decide:
 
 - **HOLD** if there is **any** CRITICAL or HIGH finding (an unnamed gate relaxation from STEP 3b is HIGH), **or** any *unresolved uncertainty on a security, exec, or data-loss surface**. Default to HOLD when unsure on those surfaces — a false HOLD costs a second look; a false MERGE ships the hole.
+- **A broken safety claim is HIGH.** If the intent, a commit message or a comment in the diff makes an explicit safety claim ("enforced at every door", "never reveals", "fails closed", "cannot drift", "tenant-scoped", "redacts every token") and you find a case where the claim is false, that finding is at least **HIGH**, however narrow the case looks. The claim is what the next reader will trust, so a hole in it is not a nit.
+- **Name the missing door.** When the diff adds a guard to some entry points, list every other entry point that reaches the same resource (grep the routes, handlers, gateways and OAuth/SSO callbacks) and say for each whether it is guarded. Missing guards are the defects diffs hide best, because there is no hunk to read.
 - **MERGE** only if the change does what its intent says, introduces no CRITICAL/HIGH issue, and you are confident about every security/exec/data-loss surface it touches. MEDIUM/LOW findings may accompany a MERGE (name them as follow-ups) but must not be blockers.
 
 ---
