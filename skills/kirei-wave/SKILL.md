@@ -7,7 +7,7 @@ You have been invoked via `/kirei-wave`. Follow this workflow precisely.
 
 You are a **fan-out / merge orchestrator**. You do not write code yourself. You turn a set of slices into worktree-isolated builder agents, one per PR, then gate and merge their PRs in dependency order. Kirei owns research → execute; this skill is the execute-at-scale machine that consumes kirei handoffs.
 
-**Boundaries:** builders commit and push their own branches and open their own PRs. You (the orchestrator) only **merge** — and only after CI is green, the attribution grep is clean, and `kirei-gate` returns `VERDICT: MERGE`. You never force-push. You never invent a slice the source didn't contain.
+**Boundaries:** builders commit and push their own branches and open their own PRs. You (the orchestrator) only **merge** — and only after CI is green, the attribution grep is clean, every gate-surface hit is justified, and `kirei-gate` returns `VERDICT: MERGE`. You never force-push. You never invent a slice the source didn't contain.
 
 ---
 
@@ -65,8 +65,8 @@ Create `.kirei/wave-YYYY-MM-DD.md` (make `.kirei/` if needed) and keep it curren
 **Base:** <branch>   ·   **Max parallel:** <n>
 
 ## Slices
-| id | scope | issue | complexity | files | depends-on | claim | branch | PR | CI | verdict | status |
-|----|-------|-------|-----------|-------|-----------|-------|--------|----|----|---------|--------|
+| id | scope | issue | complexity | files | depends-on | claim | branch | PR | CI | gate surfaces | verdict | failure_class | status |
+|----|-------|-------|-----------|-------|-----------|-------|--------|----|----|---------------|---------|---------------|--------|
 
 ## Wave plan
 - Wave 1: <slice ids>
@@ -101,12 +101,14 @@ Steps:
 1. BOOTSTRAP. Fresh worktrees inherit broken node_modules symlinks — run the repo's install (bun/pnpm/npm/yarn per lockfile) before building. Read CLAUDE.md / AGENTS.md for conventions and the real gate commands.
 2. IMPLEMENT the slice, following existing patterns.
 3. GATE BATTERY. Discover the project's checks from package.json scripts + CLAUDE.md/AGENTS.md — run whatever exists of typecheck, lint, build, tests — they must be green. Then a residue sweep: no leftover console.log/debug prints, no .only/.skip, no debugger, no KIREI-DEBUG-INSTRUMENT markers.
+   STOP RULES. A fix cycle is one edit plus one rerun of the failing check. If the same failure (file + rule, or test name) survives 5 consecutive cycles, STOP and report it as the named blocker. If the whole failing set is unchanged for 6 gate runs, STOP with failure_class no-progress. After 2 failed cycles on one unit, rewrite the unit from its contract instead of patching lines. Never make a check pass by weakening it (lower a threshold, demote or disable a rule, add an ignore/skip/retry/inline disable, turn off a strict flag). Before calling a failure pre-existing, rerun it on <base> in a throwaway worktree and paste the output; without it, the failure is yours. Stopping early with a named blocker is a good outcome.
+   GATE SURFACES. If you touched any lint/tsconfig/test-runner/coverage/budget/knip/secret-scanner/hook/CI config (the repo's gate-surfaces list in AGENTS.md if it has one), give one line per file: before value, after value, and why.
 4. COMMIT in small conventional commits. NO AI attribution of any kind — no "Co-Authored-By", no "Generated with" line, nothing. Branch only; never commit to <base>.
 5. PUSH the branch and `gh pr create` with `Closes #<issue>` in the body, and BOTH a type label (feat/fix/refactor/chore/…) and an area label. NO AI attribution in the PR body.
-6. RETURN: the PR number, the branch, the gate-battery results, and the exact files you touched. If any gate is red, do NOT open the PR — report the failure instead.
+6. RETURN: the PR number, the branch, the gate-battery results, the exact files you touched, the gate-surface lines from step 3, and a failure_class line. failure_class is `none` when all gates are green; otherwise one or more of: type-error, lint-rule, lint-meta, test-failure, build-fail, hallucinated-import, bootstrap, infra, timeout, red-on-base, no-progress, scope. A bootstrap failure also names the AGENTS.md/CLAUDE.md entry that should have covered it (or says none exists). If any gate is red, or a stop rule fired, do NOT open the PR; report the failure_class and the named blocker instead.
 ```
 
-Update the ledger with each builder's branch, PR number, gate results, and actual touched files as they return. If a builder reports it had to widen scope beyond its predicted files, re-check conflict sequencing before continuing.
+Update the ledger with each builder's branch, PR number, gate results, `failure_class`, and actual touched files as they return. A builder that returns without a `failure_class` line has not finished its report; ask it for one. If a builder reports it had to widen scope beyond its predicted files, re-check conflict sequencing before continuing.
 
 ---
 
@@ -121,15 +123,20 @@ For every returned PR, in the wave, before any merge:
    git log <base>..<pr-head> --format='%an%n%ae%n%b'
    ```
    Grep the commits and PR body for `Co-Authored-By`, `Generated with`, `Claude`, `noreply@anthropic`. **Any hit → HOLD** until the builder strips it.
-3. **Adversarial review** — spawn **`kirei-gate`** (read-only, background-safe) with the PR number + the slice's stated intent + the surfaces to stress. Mandatory for any risk-escalated slice (Step 1); recommended for all. Read its final line: `VERDICT: MERGE` or `VERDICT: HOLD`.
+3. **Gate-surface intersection**: the formal check that a PR did not loosen the gate that grades it:
+   ```bash
+   git diff --name-only <base>...<pr-head>
+   ```
+   Intersect that list with the repo's `gate-surfaces` list (a section in `AGENTS.md` or `CLAUDE.md`; if the repo has none, use the default surface table in `kirei-gate` STEP 3b). Record every hit in the ledger's **gate surfaces** column as `path: before → after`. Every hit needs the builder's one-line justification from its return; a hit with no justification → HOLD until the builder supplies one. Print the hits per PR in the wave report even when they are justified, so a relaxed gate is a visible decision.
+4. **Adversarial review** — spawn **`kirei-gate`** (read-only, background-safe) with the PR number + the slice's stated intent + the surfaces to stress. Mandatory for any risk-escalated slice (Step 1); recommended for all. Read its final line: `VERDICT: MERGE` or `VERDICT: HOLD`.
 
-Record CI result + verdict in the ledger.
+Record CI result, gate-surface hits and verdict in the ledger.
 
 ---
 
 ## 6. MERGE IN DEPENDENCY ORDER
 
-Merge a PR **only** when all three hold: CI green, attribution grep clean, `kirei-gate` = `VERDICT: MERGE`. Merge in `depends-on` order (a dependency merges before its dependent). Use `gh pr merge <N> --squash` (or the repo's convention). Never force-anything.
+Merge a PR **only** when all four hold: CI green, attribution grep clean, every gate-surface hit justified, `kirei-gate` = `VERDICT: MERGE`. Merge in `depends-on` order (a dependency merges before its dependent). Use `gh pr merge <N> --squash` (or the repo's convention). Never force-anything.
 
 After each merge, append a line to the ledger's **Merge log** (by name), and — because `Closes #N` silently fails often enough to distrust — verify the linked issue actually closed; if it didn't, close it with a comment linking the merged PR.
 
@@ -139,7 +146,7 @@ Once a wave is fully merged, start the next wave (its worktrees were held back p
 
 ## 7. HANDLE HOLDS
 
-A HOLD (red CI, dirty attribution, or `VERDICT: HOLD`) does **not** merge. Route it:
+A HOLD (red CI, dirty attribution, an unjustified gate-surface hit, a builder stopped on a named blocker, or `VERDICT: HOLD`) does **not** merge. Route it:
 
 - **Back to the builder** — if the fix is clear (strip attribution, fix a lint, address a gate finding), continue that builder via SendMessage with the specific gate/verdict reasons; re-run Step 5 when it returns.
 - **To the user** — if the verdict raises a real design or security question, surface it with the `kirei-gate` reasons and stop on that slice. Do not override a HOLD on a security/exec/data-loss surface yourself.
@@ -154,6 +161,8 @@ Short summary:
 - Waves run, slices attempted, PRs opened.
 - What merged (by name, in merge order) and what's held + why.
 - Any `Closes #N` reconciliations you had to do by hand.
+- Gate-surface hits per PR (`path: before → after`, justification), or `none`.
+- A `failure_class` tally across every builder in the run, e.g. `none 4 · bootstrap 2 · test-failure 1 · no-progress 1`. Name the repeat offenders: two `bootstrap` failures on the same missing step mean the repo's setup docs need an entry, and that entry is the fix.
 - Pointer to `.kirei/wave-YYYY-MM-DD.md` for the full ledger.
 
 ---
@@ -162,9 +171,10 @@ Short summary:
 
 1. **Parallel builds, disjoint files.** Never run two worktrees on overlapping files at once — that is the whole reason for wave sequencing.
 2. **The ledger is the source of truth.** Update it at every state change; refer to slices and PRs by name.
-3. **Three green lights to merge.** CI + clean attribution grep + `kirei-gate: MERGE`. Missing any one = HOLD.
+3. **Four green lights to merge.** CI + clean attribution grep + justified gate-surface hits + `kirei-gate: MERGE`. Missing any one = HOLD.
 4. **No AI attribution, ever.** Enforced on the builder AND re-checked as a merge gate. A dirty commit or PR body holds the merge.
 5. **Merge in dependency order.** Dependencies before dependents; re-base later waves after earlier ones land.
 6. **Bootstrap every worktree.** Fresh worktrees inherit broken symlinks — install deps and read CLAUDE.md/AGENTS.md before building.
 7. **Never force-push; never override a security HOLD.** Builders push their own branches; you only merge clean, gated PRs.
 8. **Claim before work.** Mark the slice claimed in the ledger before spawning, so concurrent wave runs don't collide.
+9. **Stuck builders stop.** A builder that hits a stop rule (5 cycles on one failure, 6 unchanged gate runs) reports its blocker and `failure_class` instead of churning. Treat that as a finished slice with a HOLD, not as a crash to retry blindly.
