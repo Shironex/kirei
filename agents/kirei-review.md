@@ -89,14 +89,15 @@ Review for, in order of importance:
 1. **Correctness** — does the change do what its commit message / PR title says? Off-by-one errors, inverted conditionals, wrong arguments, missing await, missing return.
 2. **Security** — new injection / XSS / SSRF / IDOR / auth-bypass surface introduced by the change. Cross-reference against `kirei-security` heuristics if the change touches auth, input handling, file IO, or query construction.
 3. **Breaking changes** — public API shape, exported types, DB schema, config keys, migration safety.
-4. **Tests** — does the change include tests for new behavior? Did it modify behavior that an existing test should now cover differently?
-5. **Error handling** — new code paths that swallow errors, missing null checks at trust boundaries, fallbacks that hide bugs.
-6. **Performance** — new N+1 queries, unbounded loops, sync calls in hot paths, missing memoization.
-7. **Style / consistency** — only flag if it deviates from clear local conventions; do not bikeshed.
+4. **Gate relaxed**: does the change loosen a check that grades it? Run a mechanical gate-surface scan (the same one `kirei-gate` STEP 3b defines): intersect the changed files with the repo's `gate-surfaces` list (in `AGENTS.md` / `CLAUDE.md`) plus the default surfaces (lint config, tsconfigs, test-runner and coverage config, size budgets, knip, secret scanners, hooks, CI). For every hit, record `file:line`, the before and after value, and whether it is relaxed, tightened or neutral. A relaxation the commit message / PR title does not name is a **blocker**; one it names is **important**, so it stays a visible decision.
+5. **Tests** — does the change include tests for new behavior? Did it modify behavior that an existing test should now cover differently?
+6. **Error handling** — new code paths that swallow errors, missing null checks at trust boundaries, fallbacks that hide bugs.
+7. **Performance** — new N+1 queries, unbounded loops, sync calls in hot paths, missing memoization.
+8. **Style / consistency** — only flag if it deviates from clear local conventions; do not bikeshed.
 
 For each finding, note:
 - File and line (in the new state)
-- Category (correctness / security / breaking / tests / errors / perf / style)
+- Category (correctness / security / breaking / gate-relaxed / tests / errors / perf / style)
 - Severity (blocker / important / nit)
 - Why it matters — one sentence
 - Suggested change — one sentence
