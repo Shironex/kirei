@@ -2,6 +2,17 @@
 
 All notable changes to kirei are documented in this file. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+- Stop rules for `kirei-stitch`, `kirei-loom` and `/kirei-wave` builders: stop and name the blocker when one failure (file + rule, or test) survives 5 fix cycles, or when the whole failing set is unchanged for 6 gate runs. A turn cap is a crash guard, not a stop rule. Paired with "rewrite the failing unit, do not micro-patch" and "never pass a check by weakening it".
+- A fixed `failure_class` vocabulary (`type-error`, `lint-rule`, `lint-meta`, `test-failure`, `build-fail`, `hallucinated-import`, `bootstrap`, `infra`, `timeout`, `red-on-base`, `no-progress`, `scope`) on every execute-agent and builder report; `/kirei-wave` tallies it in the wave report. `red-on-base` is only valid with the base rerun output pasted.
+- `kirei-gate` STEP 3b, a mechanical gate-surface scan on every review: intersect the diff with the repo's `gate-surfaces` list (from `AGENTS.md` / `CLAUDE.md`) plus built-in defaults, classify each hunk as relaxed / tightened / neutral, and print a before/after table. A relaxation the intent does not name is HIGH, so the verdict is HOLD. `kirei-review` gains the same check as a review category.
+- `kirei-gate` calibration: a disproved explicit safety claim ("every door", "never reveals", "fails closed") is at least HIGH, and the reviewer lists every entry point that reaches a newly guarded resource. Measured on the recall corpus: blocking recall 10/14 to 11/14.
+- `/kirei-wave` gate-surface intersection as a fourth merge light: every hit needs the builder's one-line justification, and the wave report prints hits per PR.
+- `templates/lane-spec.md`: the stop rules, failure classes and a sample `gate-surfaces` list as drop-in blocks for hand-written lane briefs.
+- `scripts/review-eval/`: a reviewer-recall harness. It replays real fixes from a project's history (the introducing commit, or a revert of the fix) in isolated repos that cannot see the fix, scores grounded findings within 3 lines of the fixed lines, and reports recall with a Wilson interval plus a z-test and exact McNemar test between variants. Supports planted-defect cases, a hand-audit override for the line rule, and per-run prompt snapshots so a prompt change can be measured against the prompt it replaced. The corpus lives in the repo whose history it replays; `corpus.example.json` shows the shape. First measurement, on a private 14-case corpus: `kirei-gate` blocking recall 10/14 on Opus (3/7 on introducing-commit cases), 6/14 on Sonnet (0/7), 11/14 with the calibration rule. `scripts/review-eval/PANEL-DESIGN.md` designs an optional non-Claude second reviewer against those numbers; it is not built.
+
 ## [2.0.0] - 2026-07-12
 
 A breaking rework of the v1.x line: clearer agent names, the Omniscribe MCP integration removed entirely, a new adversarial merge-gate reviewer, a worktree-parallel execute orchestrator, model tiering, and two silent-failure bug fixes.

@@ -36,9 +36,9 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| `kirei-stitch` | sonnet | Execute findings — normal/focused tasks |
-| `kirei-loom` | opus | Execute findings — complex/multi-file tasks |
-| `kirei-gate` | opus | Adversarial, read-only merge-gate reviewer — reviews a PR/diff and returns exactly `VERDICT: MERGE` or `VERDICT: HOLD`. No Edit/Write, no AskUserQuestion, so it is background-safe. Used by `/kirei-wave`. |
+| `kirei-stitch` | sonnet | Execute findings — normal/focused tasks. Stops on a named blocker (5 cycles on one failure, 6 unchanged gate runs) and reports a `failure_class`. |
+| `kirei-loom` | opus | Execute findings — complex/multi-file tasks. Same stop rules and `failure_class` report as `kirei-stitch`. |
+| `kirei-gate` | opus | Adversarial, read-only merge-gate reviewer — reviews a PR/diff and returns exactly `VERDICT: MERGE` or `VERDICT: HOLD`. Every review includes a gate-surface table (before/after of any lint, tsconfig, coverage, budget, knip, hook or CI value the diff changes); an unannounced relaxation is HIGH. No Edit/Write, no AskUserQuestion, so it is background-safe. Used by `/kirei-wave`. |
 
 ## Skills
 
@@ -51,7 +51,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `/kirei-discuss [idea]` | Conversational pros/cons audit before any code — walks problem framing, value, cost, risks, alternatives, reversibility, and a clear next-step recommendation (build / spike / wait / don't-build). Writes a decision doc to `docs/discuss/`. |
 | `/kirei-sentry` | Sentry setup orchestrator — asks the consent model + scope + region, runs `kirei-sentry` to design a framework-specific integration (consent-gated, PII-scrubbed, CI source maps), then `kirei-loom` to implement it. Verifies the current SDK API via Ref first. |
 | `/kirei-templatize` | Strips an existing JS/TS repo into a reusable starter template via parallel disjoint-file phase agents. Asks target/detection/execution/commit/attribution preferences up front. |
-| `/kirei-wave` | Worktree-parallel multi-slice execute orchestrator — takes slices (from `--findings`, `--audit`, a wayfinder `--map`, or an inline list), fans out one worktree-isolated builder (`kirei-stitch`/`kirei-loom`) per PR that bootstraps → implements → runs the gate battery → opens a PR (`Closes #N`, labels, no AI attribution), then gates each PR (CI + attribution grep + `kirei-gate`) and merges in dependency order. Keeps a `.kirei/wave-*.md` ledger; never runs parallel worktrees on shared files. |
+| `/kirei-wave` | Worktree-parallel multi-slice execute orchestrator — takes slices (from `--findings`, `--audit`, a wayfinder `--map`, or an inline list), fans out one worktree-isolated builder (`kirei-stitch`/`kirei-loom`) per PR that bootstraps → implements → runs the gate battery → opens a PR (`Closes #N`, labels, no AI attribution), then gates each PR (CI + attribution grep + gate-surface intersection + `kirei-gate`) and merges in dependency order. Keeps a `.kirei/wave-*.md` ledger; never runs parallel worktrees on shared files. |
 
 ### `/kirei` flags
 
@@ -212,13 +212,19 @@ flowchart TD
     slice --> plan[plan waves\ndisjoint files per wave]
     plan --> spawn[spawn 1 worktree builder / slice\nkirei-stitch / kirei-loom]
     spawn --> pr[bootstrap → implement → gate battery\n→ commit no-attribution → open PR Closes #N]
-    pr --> gate{CI green?\nattribution clean?\nkirei-gate: MERGE?}
+    pr --> gate{CI green?\nattribution clean?\ngate surfaces justified?\nkirei-gate: MERGE?}
     gate -->|all yes| merge[merge in dependency order]
     gate -->|any no| hold[HOLD → back to builder or user]
     merge --> ledger([.kirei/wave-YYYY-MM-DD.md])
 ```
 
-Turns a set of PR-sized slices into worktree-isolated builders, one per PR, then gates each PR (CI + attribution grep + an adversarial `kirei-gate` review) and merges in dependency order. Never runs parallel worktrees on files that overlap; keeps a ledger so the plan survives context compaction. Feeds naturally from `/kirei` findings, `/kirei-audit` phases, or a wayfinder map.
+Turns a set of PR-sized slices into worktree-isolated builders, one per PR, then gates each PR (CI + attribution grep + gate-surface intersection + an adversarial `kirei-gate` review) and merges in dependency order. Never runs parallel worktrees on files that overlap; keeps a ledger so the plan survives context compaction. Feeds naturally from `/kirei` findings, `/kirei-audit` phases, or a wayfinder map.
+
+Builders stop early instead of churning: 5 fix cycles on one failure, or 6 gate runs with an unchanged failure set, ends the slice with a named blocker. Every builder return carries a `failure_class` from a fixed list, and the wave report tallies them. `templates/lane-spec.md` holds the same stop rules, failure classes and gate-surface list as drop-in blocks for hand-written lane briefs.
+
+### Reviewer recall (`scripts/review-eval/`)
+
+How often does `kirei-gate` catch a real bug? `scripts/review-eval/harness.py` replays real fixes from a project's history (the commit that introduced each bug, or a revert of its fix), runs the reviewer in an isolated repo that cannot see the fix, and scores grounded findings against the lines the fix changed. It reports recall with a Wilson interval and compares reviewer variants with a z-test and an exact McNemar test. It runs on demand, not in CI. See `scripts/review-eval/README.md` for the method and the first measurement, and `scripts/review-eval/PANEL-DESIGN.md` for the designed (not built) non-Claude second reviewer.
 
 ## Install
 
