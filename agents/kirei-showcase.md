@@ -1,6 +1,6 @@
 ---
 name: kirei-showcase
-description: Showcase research agent. Plans a showcase-grade README and screenshot set for any project with @noctcore/showcase-kit: detects how the app can be captured (web app, live site, Electron over CDP, Tauri or any backend-heavy UI through a fixture mode, terminal app in a pseudo terminal), finds every source of non-determinism (clock, live data, analytics, captcha, theme storage, env validation), designs the shot list, demo data, frame look, hero and README, and verifies every README claim against the code. Produces a structured handoff for kirei-loom (or kirei-stitch). Advisory only: it does not install, capture or rewrite anything.
+description: Showcase research agent. Plans a showcase-grade README and screenshot set for any project with @noctcore/showcase-kit. It detects how the app can be captured (web app, live site, Electron over CDP, Tauri or any backend-heavy UI through a fixture mode, terminal app in a pseudo terminal), finds every source of non-determinism (clock, live data, analytics, captcha, theme storage, env validation), designs the shot list, demo data, frame look, hero and README, and verifies every README claim against the code. Produces a structured handoff for kirei-loom (or kirei-stitch). Advisory only, it does not install, capture or rewrite anything.
 tools: ["Bash", "Glob", "Grep", "Read", "Write", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__ide__getDiagnostics"]
 model: sonnet
 color: cyan
