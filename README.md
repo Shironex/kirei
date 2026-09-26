@@ -28,6 +28,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `kirei-resilience` | sonnet | `docs/error/` | Error handling audit — swallowed catches, error taxonomy, boundary leaks, missing timeouts/retries, async hazards |
 | `kirei-eval` | sonnet | `docs/eval/` | Evaluation infrastructure audit — eval suites, baselines, golden datasets, regression detection, CI integration |
 | `kirei-sentry` | sonnet | `docs/sentry/` | Production-ready Sentry setup — framework-aware (Electron/Next/Vite/Node/RN), consent gating, recursive PII scrubbing, CI-only source maps, region handling, secret wiring |
+| `kirei-showcase` | sonnet | `docs/showcase/` | Showcase README + screenshot plan with `@noctcore/showcase-kit`: picks the capture mode (web, live site, Electron over CDP, fixture mode for backend-heavy UIs, terminal), freezes every source of non-determinism, designs the shot list, demo data, hero and README, and verifies every README claim against the code |
 | `/kirei-prism` (skill) | — | `docs/chain/` | Combined report from a multi-lens parallel run |
 | `/kirei-audit` (skill) | — | `docs/audit/` | Code-quality audit — scales parallel `kirei-refactor` agents to repo size, merges into one dependency-ordered cleanup plan, offers ordered fixes |
 | `/kirei-discuss` (skill) | — | `docs/discuss/` | Conversational pros/cons audit of an idea/feature/project before any code is written |
@@ -50,6 +51,7 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `/kirei-audit` | Code-quality orchestrator — asks for depth (quick / standard / deep), scout-sizes parallel `kirei-refactor` agents to the repo (1 → 6), merges findings into one dependency-ordered cleanup plan, then offers to fix the phases in order via `kirei-stitch` / `kirei-loom`. Audits code smells, DRY violations, god files, dead code, inconsistent conventions, and best-practice gaps. |
 | `/kirei-discuss [idea]` | Conversational pros/cons audit before any code — walks problem framing, value, cost, risks, alternatives, reversibility, and a clear next-step recommendation (build / spike / wait / don't-build). Writes a decision doc to `docs/discuss/`. |
 | `/kirei-sentry` | Sentry setup orchestrator — asks the consent model + scope + region, runs `kirei-sentry` to design a framework-specific integration (consent-gated, PII-scrubbed, CI source maps), then `kirei-loom` to implement it. Verifies the current SDK API via Ref first. |
+| `/kirei-showcase` | Showcase README orchestrator: asks the capture target, demo data, README scope and look, runs `kirei-showcase` to plan a deterministic capture and a verified README, then `kirei-loom` to install the kit, write the config (and a dev-only fixture mode if needed), capture, check every image and rewrite the README. |
 | `/kirei-templatize` | Strips an existing JS/TS repo into a reusable starter template via parallel disjoint-file phase agents. Asks target/detection/execution/commit/attribution preferences up front. |
 | `/kirei-wave` | Worktree-parallel multi-slice execute orchestrator — takes slices (from `--findings`, `--audit`, a wayfinder `--map`, or an inline list), fans out one worktree-isolated builder (`kirei-stitch`/`kirei-loom`) per PR that bootstraps → implements → runs the gate battery → opens a PR (`Closes #N`, labels, no AI attribution), then gates each PR (CI + attribution grep + gate-surface intersection + `kirei-gate`) and merges in dependency order. Keeps a `.kirei/wave-*.md` ledger; never runs parallel worktrees on shared files. |
 
@@ -88,6 +90,18 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 | `--categories <list>` | Pin taxonomy categories: `dead-code, dup, god-files, abstractions, consistency, best-practices`. Default: all six. |
 | `--max-agents <n>` | Hard cap on parallel workers (never raises above the depth cap). |
 | `--no-scout` | Skip scout sizing; use the depth's full agent budget directly. |
+
+### `/kirei-showcase` flags
+
+| Flag | Effect |
+|---|---|
+| `--mode <m>` | Skip the capture target question. Valid: `url`, `live`, `cdp`, `tty`. |
+| `--readme-only` | Keep the existing config and images; rewrite the README around them. |
+| `--images-only` | Set up the kit and regenerate images; leave the README text alone. |
+| `--langs <codes>` | Languages to capture, comma separated. |
+| `--portfolio <dir>` | Also export portfolio images. |
+| `--no-hero` | Skip the hero banner. |
+| `--research-only` | Write the plan to `docs/showcase/` only. |
 
 ## How it works
 
@@ -276,7 +290,7 @@ Manual install: pull latest and re-run the copy commands.
 
 - **Ref MCP for docs** — agents use `mcp__Ref__ref_*` for library documentation; falls back to WebSearch if unavailable. context7 is not used.
 - **AskUserQuestion after investigation** — findings are validated with the user once analysis is complete, not before. Prevents scope conversations from slowing down clear tasks.
-- **Findings persistence, organised by domain** — every investigation writes to `docs/<category>/YYYY-MM-DD-<slug>.md` in the target repo (one folder per agent: `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, `docs/observability/`, `docs/bundle/`, `docs/license/`, `docs/error/`, `docs/eval/`, `docs/chain/`, `docs/audit/`, `docs/discuss/`, plus `docs/research/` for the general agent). Findings survive across sessions and stay sorted instead of piling up in one folder.
+- **Findings persistence, organised by domain** — every investigation writes to `docs/<category>/YYYY-MM-DD-<slug>.md` in the target repo (one folder per agent: `docs/security/`, `docs/perf/`, `docs/refactor/`, `docs/test/`, `docs/migrate/`, `docs/review/`, `docs/debug/`, `docs/data/`, `docs/arch/`, `docs/ui/`, `docs/observability/`, `docs/bundle/`, `docs/license/`, `docs/error/`, `docs/eval/`, `docs/chain/`, `docs/audit/`, `docs/discuss/`, `docs/showcase/`, plus `docs/research/` for the general agent). Findings survive across sessions and stay sorted instead of piling up in one folder.
 - **Two execute tiers** — kirei-stitch (sonnet) for focused changes, kirei-loom (opus) for complex multi-file work. Research agent recommends which; orchestrator skill decides.
-- **Skill = front door, agent = engine** — `/kirei-deps` and `/kirei-sentry` are skills that gather decisions and orchestrate; the same-named `kirei-deps` / `kirei-sentry` agents are the research engines they spawn. New additions should follow this split deliberately.
+- **Skill = front door, agent = engine** — `/kirei-deps`, `/kirei-sentry` and `/kirei-showcase` are skills that gather decisions and orchestrate; the same-named `kirei-deps` / `kirei-sentry` / `kirei-showcase` agents are the research engines they spawn. New additions should follow this split deliberately.
 - **Findings folders are stable labels** — a couple of agents keep their original findings-folder name after a rename so historical reports stay put: `kirei-resilience` writes to `docs/error/`, and the `/kirei-prism` skill merges into `docs/chain/`.
