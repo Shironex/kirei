@@ -1,9 +1,10 @@
-# Lane spec blocks: stop rules, failure classes, gate surfaces
+# Lane spec blocks: stop rules, failure classes, gate surfaces, gate commands
 
 Drop-in blocks for a coordinator's lane brief (an Orca `GOAL / DO THIS / VERIFY / REPORT` spec, a
 `/kirei-wave` builder brief, or any hand-written worker prompt). `kirei-stitch`, `kirei-loom` and
 `/kirei-wave` builders already carry the same rules; paste these into briefs for workers that do
-not run a kirei agent.
+not run a kirei agent. For visible changes, add the OBSERVE block from
+`templates/run-and-observe.md`.
 
 ---
 
@@ -11,7 +12,10 @@ not run a kirei agent.
 
 ```text
 VERIFY
-Run the lane's full battery and paste REAL output, not a summary line.
+Run the lane's full battery and paste REAL output, not a summary line. Find the battery with
+python "${CLAUDE_PLUGIN_ROOT}/scripts/gate-commands.py" (AGENTS.md gate-commands, Make, CMake,
+package.json, Cargo): fast roles on every fix cycle, slow roles once before the PR, and never a
+goldens-accept command unless the brief names the re-accept.
 
 Stop rules. A fix cycle is one edit plus one rerun of the failing check. Track each failure by
 its signature: file + rule for type and lint errors, the test name for a test, the step name for
@@ -38,6 +42,7 @@ Every report carries these three lines, even on success:
 failure_class: none | <one or more from the fixed list>
 blocker: none | <signature + cycles, e.g. "stuck on no-explicit-any in src/views/Foo/index.tsx after 5 cycles">
 gate_surfaces: none | <path: before -> after, why>   (one per touched gate-surface file)
+Run result: OBSERVED <what was seen> (<paths>) | NOT VERIFIED <reason> | N/A <reason>
 
 A bootstrap failure also names the AGENTS.md / CLAUDE.md entry that should have covered it, or
 says none exists. A red-on-base claim pastes the base rerun output.
@@ -89,3 +94,36 @@ once, as paths or globs:
 - `scripts/ci/**`, `.husky/**`, `.github/workflows/**`
 - `**/knip.json`, `.gitleaks.toml`, `commitlint.config.cjs`
 ```
+
+## gate-commands list (for the target repo's AGENTS.md)
+
+`scripts/gate-commands.py` finds most gates on its own (Make targets, CMake presets and CTest,
+package.json scripts, Cargo). A repo whose real gate is not obvious from those files publishes
+it once in `AGENTS.md`, next to `gate-surfaces`. A role listed here replaces everything
+discovered for that role. Roles: `typecheck`, `lint`, `build`, `test`, `check`, `smoke`,
+`capture`, `goldens`, `feel`, `perf`, `assets`. Mark each `(fast)` (every fix cycle) or
+`(slow)` (once per slice before the PR); without a mark, `typecheck`, `lint`, `build` and
+`test` are fast and the rest slow.
+
+```markdown
+## gate-commands
+
+- build: `make debug` (fast)
+- test: `make test` (fast), `make test-release` (fast)
+- lint: `make format-check` (fast)
+- smoke: `make smoke` (slow)
+- capture: `make shots` (slow)
+- feel: `make feel` (slow)
+- assets: `python -I <kirei>/scripts/asset-check.py assets/models --scan-code src` (slow)
+```
+
+`<kirei>` is wherever kirei's `scripts/` folder lives; agents running as the plugin use
+`${CLAUDE_PLUGIN_ROOT}`. A goldens target that accepts new images (a `make
+goldens` that rewrites `tests/data/goldens/`) does not belong under `goldens`: the comparison
+runs inside `smoke` or a test, and the accept command is never a gate.
+
+The `assets` role is the asset contract check: `scripts/asset-check.py` reads every glTF/GLB
+model given and fails when a node name the code looks up (string literals and UPPER_CASE
+constants passed to `findNode`, `getObjectByName` or a `--lookup` of your own), a `--expect`
+list or a `--manifest` JSON asks for is missing from the models. Call sites it cannot resolve
+(a parameter, a name built at runtime) are listed for a human look and do not fail the run.
