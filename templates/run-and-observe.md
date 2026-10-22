@@ -50,6 +50,10 @@ lock, so parallel builders never fight over the one real cursor and foreground w
 python -I "${CLAUDE_PLUGIN_ROOT}/scripts/input-lock.py" --role "<lane or slice id>" -- <capture command>
 ```
 
+- Every gate role that opens the app's window goes through the lock, not only the capture:
+  `smoke`, `goldens` and `feel` runs too.
+- The command runs without a shell. Wrap a compound command in one, or only its first part runs
+  under the lock: `-- sh -c "make debug && make smoke"`.
 - The lock is a directory in the system temp folder with `owner.txt` (role, PID, time). The
   wrapper holds it for exactly one command and releases it when the command ends, even on
   failure. A lock is stale after 10 minutes or when its PID is dead.

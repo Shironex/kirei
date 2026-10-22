@@ -15,7 +15,9 @@ VERIFY
 Run the lane's full battery and paste REAL output, not a summary line. Find the battery with
 python "${CLAUDE_PLUGIN_ROOT}/scripts/gate-commands.py" (AGENTS.md gate-commands, Make, CMake,
 package.json, Cargo): fast roles on every fix cycle, slow roles once before the PR, and never a
-goldens-accept command unless the brief names the re-accept.
+goldens-accept command unless the brief names the re-accept. A role that opens the app's window
+(smoke, capture, goldens, feel) runs under the input lock (the OBSERVE block in
+templates/run-and-observe.md).
 
 Stop rules. A fix cycle is one edit plus one rerun of the failing check. Track each failure by
 its signature: file + rule for type and lint errors, the test name for a test, the step name for
