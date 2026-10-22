@@ -13,7 +13,8 @@ kirei-input.lock, holding owner.txt with the role, the PID of this wrapper and t
 wrapper stays alive for the whole pass, so its PID is a true liveness signal. A lock is stale
 when that PID is dead or the lock is older than --stale minutes (default 10); a stale lock is
 taken over. Otherwise the wrapper waits up to --wait seconds (default 900), then exits 75
-naming the holder. The exit code is the command's own.
+naming the holder. The exit code is the command's own. The command runs without a shell, so
+a compound command goes inside one: -- sh -c "make debug && make smoke".
 """
 import argparse
 import os
@@ -112,6 +113,8 @@ def main():
         print(f"input lock busy: held by {info.get('role', '?')} (pid {info.get('pid', '?')}) "
               f"at {args.lock}", file=sys.stderr)
         return 75
+    # which() honours PATHEXT, so npm-style .cmd shims start on Windows without a shell.
+    command = [shutil.which(command[0]) or command[0]] + command[1:]
     try:
         return subprocess.call(command)
     except KeyboardInterrupt:

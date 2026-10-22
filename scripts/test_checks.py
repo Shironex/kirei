@@ -70,6 +70,15 @@ class AssetCheckTest(unittest.TestCase):
         self.assertEqual(r["textures"][0][1:3], (512, 300))
         self.assertIn("not a power of two", r["textures"][0][3])
 
+    def test_image_headers(self):
+        ktx2 = b"\xabKTX 20\xbb\r\n\x1a\n" + struct.pack("<IIII", 0, 1, 256, 128)
+        self.assertEqual(asset_check.image_size(ktx2), (256, 128, "ktx2"))
+        vp8x = b"RIFF\0\0\0\0WEBPVP8X" + b"\0" * 8 + (639).to_bytes(3, "little") \
+            + (479).to_bytes(3, "little")
+        self.assertEqual(asset_check.image_size(vp8x), (640, 480, "webp"))
+        jpeg = b"\xff\xd8\xff\xe0\x00\x04\0\0\xff\xc0\x00\x11\x08" + struct.pack(">HH", 50, 70)
+        self.assertEqual(asset_check.image_size(jpeg + b"\0" * 8), (70, 50, "jpeg"))
+
     def test_unreadable_image_is_not_measured(self):
         with tempfile.TemporaryDirectory() as tmp:
             r = asset_check.describe(model(tmp, image=b"garbage!" * 4))
@@ -188,6 +197,15 @@ class InputLockTest(unittest.TestCase):
                                  capture_output=True, text=True)
             self.assertEqual(out.returncode, 3)
             self.assertFalse(lock.exists())
+
+    def test_finds_commands_by_path_lookup(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = subprocess.run([sys.executable, "-I", str(HERE / "input-lock.py"),
+                                  "--lock", str(Path(tmp) / "lock"), "--",
+                                  Path(sys.executable).stem, "-c", "print('ran')"],
+                                 capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertIn("ran", out.stdout)
 
     def test_live_holder_blocks_and_dead_holder_is_stale(self):
         with tempfile.TemporaryDirectory() as tmp:
