@@ -104,14 +104,16 @@ Quality standards:
 
 Every rerun of a failing check is a fix cycle. Apply the STOP RULES above as you go: count cycles per failure signature, and stop when a rule fires instead of trying one more patch.
 
-Typecheck first:
+Find the repo's real gate battery first. It reads the `gate-commands` section of `AGENTS.md`, Make targets, CMake presets and CTest, package.json scripts and Cargo, and never runs anything itself:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/scripts/gate-commands.py" .
+```
+Run the `fast` roles (typecheck, lint, build, test) on every fix cycle and the `slow` roles that cover the change (smoke, goldens, feel, assets) once before you report. Never run a `goldens-accept` command unless the findings name the re-accept. If the script prints nothing (or the plugin root is not set), fall back to the JS defaults:
 ```bash
 npx tsc --noEmit 2>/dev/null || pnpm tsc --noEmit 2>/dev/null
 ```
 
-Fix any type errors before running tests.
-
-Run relevant tests:
+Fix type errors before running tests.
 ```bash
 pnpm test 2>/dev/null || npm test 2>/dev/null
 ```
@@ -122,7 +124,24 @@ Then verify using the method from the findings doc. For architectural changes, a
 
 ---
 
-## STEP 7: REPORT
+## STEP 7: OBSERVE (visual diffs)
+
+When the diff is visual (rendering, UI, shaders, input, assets, goldens; the full list is in `${CLAUDE_PLUGIN_ROOT}/templates/run-and-observe.md`), a green battery is not enough. Look at it:
+
+1. Find the capture: the `capture`, `smoke` or `goldens` role from `gate-commands.py`, else the screenshot command in the README or `AGENTS.md`. Do not build capture tooling.
+2. Run it under the shared input lock, so parallel agents never fight over the cursor or the foreground window:
+   ```bash
+   python -I "${CLAUDE_PLUGIN_ROOT}/scripts/input-lock.py" --role "<task slug>" -- <capture command>
+   ```
+   One short pass. Target your own window by PID; never kill a process by image name.
+3. `Read` every picture it wrote and say what each one shows. A picture you did not Read is not evidence.
+4. If a model's node names changed, or the code looks nodes up by name, run the asset contract check: the `assets` role, or `python -I "${CLAUDE_PLUGIN_ROOT}/scripts/asset-check.py" <models> --scan-code src`. A missing node is a failing check.
+
+Then write the one `Run result:` line for the report: `OBSERVED <what was seen> (<image paths>)`, `NOT VERIFIED <reason>` (no capture command, the capture failed, the lock stayed busy, the check needs the other OS) or `N/A <reason>` for a diff that is not visual.
+
+---
+
+## STEP 8: REPORT
 
 Output this block:
 
@@ -133,6 +152,7 @@ Output this block:
 **Status:** ✅ Done | ⛔ Stopped (a stop rule fired)
 **failure_class:** none | [one or more from the list below]
 **Blocker:** none | [signature + cycles, e.g. "stuck on no-explicit-any in src/views/Foo/index.tsx after 5 cycles"]
+**Run result:** OBSERVED <what was seen> (<image paths>) | NOT VERIFIED <reason> | N/A <reason>
 
 **Changes made (in order):**
 1. `path/to/file.ts` — [what changed and why]
@@ -140,7 +160,7 @@ Output this block:
 3. `path/to/third.ts` — [what changed and why]
 
 **Verified:**
-- [x] Typecheck passes
+- [x] Gate battery passes (each command from gate-commands.py, with its result)
 - [x] Tests pass / no relevant tests exist
 - [x] [Verification step from findings doc]
 - [x] No missed call sites
