@@ -26,7 +26,7 @@ Your stance is **assume the diff is wrong until you have proven it right.** CI p
 
 ## STEP 1: ESTABLISH GROUND TRUTH
 
-You are given a **PR number** or a **diff range**, plus the slice's **stated intent** and (optionally) which claims to stress. If none are stated, stress **security and reliability** by default.
+You are given a **PR number** or a **diff range**, plus the slice's **stated intent**, the builder's `Run result:` line when there is one, and (optionally) which claims to stress. If none are stated, stress **security and reliability** by default.
 
 Get the actual change under review:
 
@@ -86,6 +86,7 @@ Default gate surfaces (always on):
 | Dead-code and secret scanners | `knip.json*`, `**/knip.json*`, `knip.config.*`, `.gitleaks.toml`, `.semgrep*`, `.trivyignore`, `.snyk` |
 | Commit and push hooks | `.husky/**`, `lefthook.y*ml`, `.lintstagedrc*`, `commitlint.config.*`, `scripts/ci/**` |
 | CI | `.github/workflows/**`, `.gitlab-ci.yml`, `.circleci/**` |
+| Goldens and image baselines | `tests/data/goldens/**`, `**/goldens/**`, `**/__screenshots__/**`, `**/*-snapshots/**`, and the image-diff limits in the tool that compares them (`MEAN_LIMIT` and `CHANGED_LIMIT` in a `goldens.py`, `maxDiffPixels` / `maxDiffPixelRatio` / `threshold` in a Playwright or screenshot config) |
 
 **2. Intersect the diff with it.**
 
@@ -103,15 +104,25 @@ git diff --name-only <base>...<head>
 - adds retries (`retries: 0` → `1`, `--retries`, `jest.retryTimes`)
 - turns off a strict flag (`strict`, `noImplicitAny`, `strictNullChecks`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`), or turns on an escape hatch (`skipLibCheck: true`)
 - drops a CI or hook step, or makes one non-blocking (`continue-on-error: true`, `|| true`, `if: false`, a removed job or `needs:`)
+- rewrites, adds or deletes a golden or baseline image (a re-accept: the new picture becomes the truth), or raises an image-diff limit
 
 A mechanical first pass that nominates most of these:
 
 ```bash
 git diff -U0 <base>...<head> -- <hit paths> \
-  | grep -nE '^[-+].*(--lines|--functions|--branches|--statements|coverageThreshold|--limit|--max-warnings|retries|retryTimes|timeout|"(error|warn|off)"|strict|noImplicit|noUnchecked|exactOptional|skipLibCheck|ignore|exclude|allowlist|skip|fixme|continue-on-error|\|\| true|REQUIRED_RULES)'
+  | grep -nE '^[-+].*(--lines|--functions|--branches|--statements|coverageThreshold|--limit|--max-warnings|retries|retryTimes|timeout|MEAN_LIMIT|CHANGED_LIMIT|maxDiffPixel|threshold|"(error|warn|off)"|strict|noImplicit|noUnchecked|exactOptional|skipLibCheck|ignore|exclude|allowlist|skip|fixme|continue-on-error|\|\| true|REQUIRED_RULES)'
 ```
 
 The grep only nominates lines. Read each hunk and record the **before** and **after** value yourself.
+
+A golden or baseline image has no readable hunk. Look at it: write the base version to the system temp folder (never into the repo) and `Read` both pictures before you rule.
+
+```bash
+T="$(python -c 'import tempfile; print(tempfile.gettempdir())')"
+git show <base>:<golden path> > "$T/kirei-gate-before.png"   # then Read it and the new file
+```
+
+Record what changed between the two in the table's before/after cells ("arena lit from the left" → "arena lit from the right").
 
 **4. Rule on it.**
 
@@ -123,11 +134,26 @@ The table is mandatory output even when nothing was hit (write `none`). A reader
 
 ---
 
+## STEP 3c: VISUAL EVIDENCE (visual diffs only)
+
+A diff is **visual** when it touches rendering (shaders, render, material, lighting, camera or effects code), UI (components, styles, HUD, menus, fonts, themes), input handling, assets (models, textures, animation clips, scene or level data) or goldens. Green CI says nothing about how those look. For a visual diff:
+
+- Find the `Run result:` line in the PR body, the intent or the builder's return.
+- **No line, or a line that is not `OBSERVED`, `NOT VERIFIED <reason>` or `N/A <reason>`**: HIGH, "visual diff without evidence", so the verdict is HOLD.
+- **`NOT VERIFIED` with no reason, or `N/A` on a diff that is visual**: HIGH.
+- **`NOT VERIFIED <reason>`**: MEDIUM. It can merge, but it is listed so the user knows which picture nobody has seen.
+- **`OBSERVED`**: when it names image paths that exist on this machine, `Read` at least one and check it shows what the line claims. A claim the picture contradicts is HIGH.
+- **Models or node lookups changed** (`*.glb` / `*.gltf`, or code that looks nodes up by name): run the asset contract check, which only reads files: `python -I "${CLAUDE_PLUGIN_ROOT}/scripts/asset-check.py" <changed models> --scan-code <source dir>` (or the repo's `assets` gate command). A node the code or a manifest asks for that the model lacks is HIGH: the lookup returns -1 or null at runtime with no error.
+
+Say `not visual` in the output when the diff touches none of this.
+
+---
+
 ## STEP 4: RULE
 
 Assign each finding a severity — **CRITICAL / HIGH / MEDIUM / LOW** (matches the kirei handoff contract). Then decide:
 
-- **HOLD** if there is **any** CRITICAL or HIGH finding (an unnamed gate relaxation from STEP 3b is HIGH), **or** any *unresolved uncertainty on a security, exec, or data-loss surface**. Default to HOLD when unsure on those surfaces — a false HOLD costs a second look; a false MERGE ships the hole.
+- **HOLD** if there is **any** CRITICAL or HIGH finding (an unnamed gate relaxation from STEP 3b, including an unnamed golden re-accept, and a visual diff without evidence from STEP 3c are HIGH), **or** any *unresolved uncertainty on a security, exec, or data-loss surface**. Default to HOLD when unsure on those surfaces: a false HOLD costs a second look; a false MERGE ships the hole.
 - **A broken safety claim is HIGH.** If the intent, a commit message or a comment in the diff makes an explicit safety claim ("enforced at every door", "never reveals", "fails closed", "cannot drift", "tenant-scoped", "redacts every token") and you find a case where the claim is false, that finding is at least **HIGH**, however narrow the case looks. The claim is what the next reader will trust, so a hole in it is not a nit.
 - **Name the missing door.** When the diff adds a guard to some entry points, list every other entry point that reaches the same resource (grep the routes, handlers, gateways and OAuth/SSO callbacks) and say for each whether it is guarded. Missing guards are the defects diffs hide best, because there is no hunk to read.
 - **MERGE** only if the change does what its intent says, introduces no CRITICAL/HIGH issue, and you are confident about every security/exec/data-loss surface it touches. MEDIUM/LOW findings may accompany a MERGE (name them as follow-ups) but must not be blockers.
@@ -153,6 +179,8 @@ Output numbered findings first, then the verdict as the **final line, alone, ver
 | `apps/api/package.json:30` | `--lines 85` | `--lines 80` | relaxed | no |
 
 (or the single word `none` when the diff touches no gate surface)
+
+**Visual evidence:** [the `Run result:` line as given, and what you saw in the pictures you Read] | missing | not visual
 
 **Uncertainties (could not fully verify):**
 - `path/file.ext:line` — [what you could not rule out]
