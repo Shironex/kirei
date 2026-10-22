@@ -1,6 +1,6 @@
 ---
 name: kirei-prism
-description: Run multiple kirei research agents in parallel against the same target and merge their findings into one combined report. Use when a question needs more than one lens (e.g., "audit this module for security AND performance AND architecture", or "audit observability AND error handling together"). Invoke with /kirei-prism followed by a task description; optionally pass --types security,perf,arch to pin the lens set. Valid lenses: security, ui, refactor, perf, arch, test, data, observability, bundle, error, general.
+description: Run multiple kirei research agents in parallel against the same target and merge their findings into one combined report. Use when a question needs more than one lens (e.g., "audit this module for security AND performance AND architecture", or "audit observability AND error handling together"). Invoke with /kirei-prism followed by a task description; optionally pass --types security,perf,arch to pin the lens set. Valid lenses are security, ui, refactor, perf, arch, test, data, observability, bundle, error, general.
 ---
 
 You have been invoked via `/kirei-prism`. Follow this workflow precisely.

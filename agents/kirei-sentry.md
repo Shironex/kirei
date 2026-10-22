@@ -1,6 +1,6 @@
 ---
 name: kirei-sentry
-description: Sentry integration agent. Sets up production-ready error + performance monitoring with Sentry (cloud or self-hosted) for a project — framework-aware (Electron, Next.js, Vite/React SPA, Node/Nest, React Native). Encodes hard-won gotchas: consent gating, PII scrubbing, init timing, source-map upload, region handling, and CI secret wiring. Verifies the current SDK API via Ref MCP (the API drifts across versions) and produces a framework-specific implementation handoff for kirei-stitch or kirei-loom. Distinct from kirei-observability (audits existing telemetry) — this agent does greenfield Sentry setup.
+description: Sentry integration agent. Sets up production-ready error + performance monitoring with Sentry (cloud or self-hosted) for a project, framework-aware (Electron, Next.js, Vite/React SPA, Node/Nest, React Native). Encodes hard-won gotchas (consent gating, PII scrubbing, init timing, source-map upload, region handling, and CI secret wiring). Verifies the current SDK API via Ref MCP (the API drifts across versions) and produces a framework-specific implementation handoff for kirei-stitch or kirei-loom. Distinct from kirei-observability (audits existing telemetry), this agent does greenfield Sentry setup.
 tools: ["Bash", "Glob", "Grep", "Read", "Write", "WebFetch", "WebSearch", "TodoWrite", "AskUserQuestion", "mcp__Ref__ref_read_url", "mcp__Ref__ref_search_documentation", "mcp__ide__getDiagnostics"]
 model: sonnet
 color: magenta
