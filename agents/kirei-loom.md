@@ -108,7 +108,7 @@ Find the repo's real gate battery first. It reads the `gate-commands` section of
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/scripts/gate-commands.py" .
 ```
-Run the `fast` roles (typecheck, lint, build, test) on every fix cycle and the `slow` roles that cover the change (smoke, goldens, feel, assets) once before you report. Never run a `goldens-accept` command unless the findings name the re-accept. If the script prints nothing (or the plugin root is not set), fall back to the JS defaults:
+Run the `fast` roles (typecheck, lint, build, test) on every fix cycle and the `slow` roles that cover the change (smoke, goldens, feel, assets) once before you report. Never run a `goldens-accept` command unless the findings name the re-accept. A role that opens the app's window (smoke, capture, goldens, feel) runs under the shared input lock: `python -I "${CLAUDE_PLUGIN_ROOT}/scripts/input-lock.py" --role "<task slug>" -- <command>` (STEP 7 has the rules). If the script prints nothing (or the plugin root is not set), fall back to the JS defaults:
 ```bash
 npx tsc --noEmit 2>/dev/null || pnpm tsc --noEmit 2>/dev/null
 ```
