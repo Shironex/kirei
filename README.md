@@ -37,9 +37,9 @@ Each research agent writes its findings to its own folder under `docs/`, so repo
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| `kirei-stitch` | sonnet | Execute findings — normal/focused tasks. Stops on a named blocker (5 cycles on one failure, 6 unchanged gate runs) and reports a `failure_class`. |
-| `kirei-loom` | opus | Execute findings — complex/multi-file tasks. Same stop rules and `failure_class` report as `kirei-stitch`. |
-| `kirei-gate` | opus | Adversarial, read-only merge-gate reviewer — reviews a PR/diff and returns exactly `VERDICT: MERGE` or `VERDICT: HOLD`. Every review includes a gate-surface table (before/after of any lint, tsconfig, coverage, budget, knip, hook or CI value the diff changes); an unannounced relaxation is HIGH. No Edit/Write, no AskUserQuestion, so it is background-safe. Used by `/kirei-wave`. |
+| `kirei-stitch` | sonnet | Execute findings for normal, focused tasks. Stops on a named blocker (5 cycles on one failure, 6 unchanged gate runs) and reports a `failure_class`. Runs the repo's discovered gate battery and, for a visible change, looks at the repo's own captures and reports a `Run result:` line. |
+| `kirei-loom` | opus | Execute findings for complex, multi-file tasks. Same stop rules, gate discovery, `failure_class` and `Run result:` report as `kirei-stitch`. |
+| `kirei-gate` | opus | Adversarial, read-only merge-gate reviewer: reviews a PR/diff and returns exactly `VERDICT: MERGE` or `VERDICT: HOLD`. Every review includes a gate-surface table (before/after of any lint, tsconfig, coverage, budget, knip, hook or CI value the diff changes); an unannounced relaxation is HIGH, and so is an unannounced golden re-accept. A visual diff with no `Run result: OBSERVED` evidence is held. No Edit/Write, no AskUserQuestion, so it is background-safe. Used by `/kirei-wave`. |
 
 ## Skills
 
@@ -226,15 +226,38 @@ flowchart TD
     slice --> plan[plan waves\ndisjoint files per wave]
     plan --> spawn[spawn 1 worktree builder / slice\nkirei-stitch / kirei-loom]
     spawn --> pr[bootstrap → implement → gate battery\n→ commit no-attribution → open PR Closes #N]
-    pr --> gate{CI green?\nattribution clean?\ngate surfaces justified?\nkirei-gate: MERGE?}
+    pr --> gate{CI green?\nattribution clean?\ngate surfaces justified?\nvisual evidence?\nkirei-gate: MERGE?}
     gate -->|all yes| merge[merge in dependency order]
     gate -->|any no| hold[HOLD → back to builder or user]
     merge --> ledger([.kirei/wave-YYYY-MM-DD.md])
 ```
 
-Turns a set of PR-sized slices into worktree-isolated builders, one per PR, then gates each PR (CI + attribution grep + gate-surface intersection + an adversarial `kirei-gate` review) and merges in dependency order. Never runs parallel worktrees on files that overlap; keeps a ledger so the plan survives context compaction. Feeds naturally from `/kirei` findings, `/kirei-audit` phases, or a wayfinder map.
+Turns a set of PR-sized slices into worktree-isolated builders, one per PR, then gates each PR (CI + attribution grep + gate-surface intersection + visual evidence for visible slices + an adversarial `kirei-gate` review) and merges in dependency order. Never runs parallel worktrees on files that overlap; keeps a ledger so the plan survives context compaction. Feeds naturally from `/kirei` findings, `/kirei-audit` phases, or a wayfinder map.
 
 Builders stop early instead of churning: 5 fix cycles on one failure, or 6 gate runs with an unchanged failure set, ends the slice with a named blocker. Every builder return carries a `failure_class` from a fixed list, and the wave report tallies them. `templates/lane-spec.md` holds the same stop rules, failure classes and gate-surface list as drop-in blocks for hand-written lane briefs.
+
+### Gate battery, visual evidence and assets
+
+Not every repo's gate is `pnpm test`. `scripts/gate-commands.py` lists a repo's checks by role (`typecheck`, `lint`, `build`, `test`, `check`, `smoke`, `capture`, `goldens`, `feel`, `perf`, `assets`) from a `gate-commands` section in `AGENTS.md`, Make targets, CMake presets and CTest, package.json scripts and Cargo. It only reads files. Fast roles run on every fix cycle, slow ones once per slice, and a goldens target that rewrites the goldens is listed as `goldens-accept` and never run as a gate. `templates/lane-spec.md` shows the `AGENTS.md` section.
+
+```
+$ python scripts/gate-commands.py ../my-cmake-game
+lint            fast    make format-check  (Makefile)
+build           fast    make debug  (Makefile)
+test            fast    make test  (Makefile)
+smoke           slow    make smoke  (Makefile)
+capture         slow    make shots  (Makefile)
+goldens-accept  manual  make goldens  (Makefile)
+```
+
+When a diff changes something a user can see (rendering, UI, shaders, input, assets, goldens), `kirei-stitch`, `kirei-loom` and wave builders run the repo's own capture, `Read` every picture and end with one line: `Run result: OBSERVED <what was seen> (<paths>)`, `NOT VERIFIED <reason>` or `N/A <reason>`. On-screen passes go through `scripts/input-lock.py`, a machine-wide lock in the temp folder that wraps one command, so parallel builders never fight over the cursor or the foreground window. `kirei-gate` holds a visual diff without evidence and looks at the before and after images of any re-accepted golden. The full procedure is `templates/run-and-observe.md`.
+
+`scripts/asset-check.py` is the asset contract check, standard library only. For each glTF/GLB model it reports node names, triangles, materials, texture sizes (PNG, JPEG, WebP, KTX2; anything it cannot read prints `not measured`), file size and mirrored transforms. Then it fails (exit 1) when a node the code asks for is missing: it scans the source for string literals and UPPER_CASE constants passed to `findNode`, `getObjectByName` or your own `--lookup`, plus `--expect` lists and a per-model `--manifest` JSON. Call sites it cannot resolve are listed for a human look. Register it as the `assets` gate command to run it on every slice that touches models.
+
+```
+python -I scripts/asset-check.py assets/models --scan-code src
+python -I scripts/asset-check.py web/turntable.glb --expect platter,tonearm
+```
 
 ### Reviewer recall (`scripts/review-eval/`)
 
