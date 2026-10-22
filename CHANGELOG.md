@@ -4,6 +4,21 @@ All notable changes to kirei are documented in this file. Format loosely follows
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-22
+
+### Added
+- Visual evidence for visible changes: `kirei-stitch`, `kirei-loom` and `/kirei-wave` builders run the repo's own capture or goldens command when a diff touches rendering, UI, shaders, input, assets or goldens, `Read` every picture, and end with one line: `Run result: OBSERVED <what was seen> (<paths>)`, `NOT VERIFIED <reason>` or `N/A <reason>`. Builders copy the line into the PR body. The full procedure ships as `templates/run-and-observe.md`, with a drop-in OBSERVE block for hand-written lane briefs.
+- `scripts/input-lock.py`: a machine-wide input lock for on-screen passes. It wraps one command, holds a lock directory in the system temp folder (`owner.txt` with role, PID and time) for exactly that command and releases it when the command ends, even on failure. A lock is stale after 10 minutes or when its PID is dead. Parallel builders no longer fight over the one cursor and foreground window. Works on Windows and macOS.
+- Native gate discovery: `scripts/gate-commands.py` lists a repo's checks by role (`typecheck`, `lint`, `build`, `test`, `check`, `smoke`, `capture`, `goldens`, `feel`, `perf`, `assets`) from a `gate-commands` section in `AGENTS.md` (or `CLAUDE.md`), Make targets (rules and `.PHONY`), CMake presets and CTest, package.json scripts and Cargo. It only reads files. Execute agents and wave builders run the fast roles on every fix cycle and the slow ones once per slice. A goldens target whose recipe rewrites the goldens is listed as `goldens-accept` and is never run as a gate. `templates/lane-spec.md` documents the `AGENTS.md` section.
+- `scripts/asset-check.py`: a stdlib-only asset contract check for glTF and GLB models. It reports node names, triangles, materials, texture sizes and power of two (PNG, JPEG, WebP, KTX2), file size and mirrored transforms, and exits 1 when a node the contract asks for is missing. The contract comes from `--expect`, a per-model `--manifest` JSON, or the code itself: string literals and UPPER_CASE constants passed to `findNode`, `getObjectByName` or a `--lookup` of your own, so a model that lacks a joint the code asks for fails the gate instead of returning -1 at runtime. Call sites it cannot resolve are listed for a human look, and anything it cannot measure prints `not measured`, never 0. Register it as the `assets` gate command.
+- `scripts/test_checks.py`: unit tests for the three new scripts.
+
+### Changed
+- `kirei-gate` STEP 3c: a visual diff with no `Run result:` line, a `NOT VERIFIED` without a reason, or `N/A` on a visual diff is HIGH, so the verdict is HOLD. An `OBSERVED` claim with image paths is checked against at least one picture, and a diff that touches models or node lookups gets the asset contract check.
+- `kirei-gate` STEP 3b: goldens and image baselines (`tests/data/goldens/**`, `**/__screenshots__/**`, `**/*-snapshots/**`) and image-diff limits (`MEAN_LIMIT`, `CHANGED_LIMIT`, `maxDiffPixels`, `threshold`) are default gate surfaces. A re-accepted golden the intent does not name counts as a relaxation, and the reviewer reads the before and after images before it rules.
+- `/kirei-wave`: visual evidence is a fifth merge light, the ledger gains a run result column, the wave report lists every `NOT VERIFIED` with its reason, and builders take the input lock for on-screen passes.
+- `kirei-stitch` and `kirei-loom` run the discovered gate battery instead of a hardcoded `tsc` and `pnpm test`, which stay as the fallback.
+
 ## [2.1.0] - 2026-09-27
 
 ### Added
